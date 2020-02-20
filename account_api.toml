@@ -1,0 +1,10 @@
+freq = 1 #1s ,60s=1min
+[[api]]
+    AccountId="xxxx"
+    ApiKey="xxx"
+    ApiSecretKey="Xxx"
+[[api]]
+    AccountId="xxxx"
+    ApiKey="xxx"
+    ApiSecretKey="Xxx"
+    ApiPassphrase="xxx"
