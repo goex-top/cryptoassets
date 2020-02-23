@@ -2,30 +2,45 @@ package main
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/nntaoli-project/GoEx"
 )
+
+// database table
+type Account struct {
+	gorm.Model
+	NickName      string
+	ExchangeName  string
+	ApiKey        string
+	ApiSecretKey  string
+	ApiPassphrase string
+	Assets        []Asset
+}
 
 type Asset struct {
 	gorm.Model
-	AccountId string
-	Btc       float64
-	Usdt      float64
+	Btc      float64
+	Usdt     float64
+	Btc_Usdt float64
+	Usdt_Usd float64
+	Usd_Cny  float64
+	Coins    []CoinAsset
 }
 
 type CoinAsset struct {
 	gorm.Model
-	AccountId    string
+	AssetID      uint
 	CoinName     string
 	Amount       float64
 	FrozenAmount float64
 }
 
-type AccountApi struct {
-	goex.APIConfig
-	AccountId string
+// configure
+type Config struct {
+	Freq  int    `toml:"freq"`
+	Proxy string `toml:proxy`
+	User  User   `toml:"user"`
 }
 
-type Config struct {
-	Freq int          `toml:"freq"`
-	Apis []AccountApi `toml:"api"`
+type User struct {
+	UserName string
+	Password string
 }
