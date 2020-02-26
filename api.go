@@ -33,6 +33,9 @@ func AddSettings(c echo.Context) error {
 	sec_key := c.FormValue("sec_key")
 	pass_key := c.FormValue("pass_key")
 
+	if orm.HasNickName(nick_name) {
+		return c.String(http.StatusOK, `{code:3000,error: "昵称重名, 请检查"}`)
+	}
 	account := Account{
 		NickName:      nick_name,
 		ExchangeName:  exchange_name,
@@ -40,13 +43,7 @@ func AddSettings(c echo.Context) error {
 		ApiSecretKey:  sec_key,
 		ApiPassphrase: pass_key,
 	}
-	addAccount(Account{
-		NickName:      nick_name,
-		ExchangeName:  exchange_name,
-		ApiKey:        api_key,
-		ApiSecretKey:  string(AESECBEncrypt([]byte(sec_key), []byte(conf.User.Password))),
-		ApiPassphrase: pass_key,
-	})
+	orm.AddAccount(account)
 	accounts = append(accounts, account)
 
 	return c.String(http.StatusOK, "{}")
@@ -56,7 +53,7 @@ func GetAssetHistory(c echo.Context) error {
 	all := make([][]Asset, 0)
 	maxSize := 0
 	for _, v := range accounts {
-		acc := getAssetsFromNickname(v.NickName)
+		acc := orm.GetAssetsFromNickname(v.NickName)
 		all = append(all, acc)
 		if len(acc) > maxSize {
 			maxSize = len(acc)
@@ -98,7 +95,7 @@ func GetCurrentAsset(c echo.Context) error {
 	}
 	all := make([]NicknameAsset, 0)
 	for _, v := range accounts {
-		acc := getAssetsFromNickname(v.NickName)
+		acc := orm.GetAssetsFromNickname(v.NickName)
 		all = append(all, NicknameAsset{
 			ID:       acc[len(acc)-1].ID,
 			NickName: v.NickName,
@@ -114,5 +111,5 @@ func GetCurrentCoins(c echo.Context) error {
 	//nick_name := c.QueryParam("nick_name")
 	ids := c.QueryParam("ID")
 	id, _ := strconv.Atoi(ids)
-	return c.JSON(http.StatusOK, getCoinsFromAssetId(uint(id)))
+	return c.JSON(http.StatusOK, orm.GetCoinsFromAssetId(uint(id)))
 }

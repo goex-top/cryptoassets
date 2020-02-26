@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
@@ -9,11 +8,11 @@ var (
 	conf      Config
 	exchanges []Exchange
 	accounts  []Account
-	orm       *gorm.DB
+	orm       OrmManager
 )
 
 func main() {
-	orm = initOrm()
+	orm.DB = initOrm()
 	conf, _ = loadConfig()
 	initExchanges(conf)
 	e := echo.New()

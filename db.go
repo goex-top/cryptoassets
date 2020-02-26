@@ -5,6 +5,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
+type OrmManager struct {
+	*gorm.DB
+}
+
 func initOrm() *gorm.DB {
 	orm, err := gorm.Open("sqlite3", "./assets.db3")
 	if err != nil {
@@ -15,22 +19,36 @@ func initOrm() *gorm.DB {
 	return orm
 }
 
-func addAccount(account Account) {
-	orm.Create(&account)
+func (om *OrmManager) AddAccount(account Account) error {
+	return om.Create(&account).Error
 }
 
-func getAssetsFromNickname(nickname string) []Asset {
+func (om *OrmManager) HasNickName(nickname string) bool {
+	acc := om.FindAccountFromNickName(nickname)
+	if acc.ID == 0 {
+		return false
+	}
+	return true
+}
+
+func (om *OrmManager) FindAccountFromNickName(nickname string) Account {
 	acc := Account{NickName: nickname}
+	om.Where("nick_name = ?", nickname).First(&acc)
+	return acc
+}
+
+func (om *OrmManager) GetAssetsFromNickname(nickname string) []Asset {
+	acc := om.FindAccountFromNickName(nickname)
 	assets := make([]Asset, 0)
-	orm.First(&acc)
-	orm.Model(&acc).Related(&assets)
+	om.Where("nick_name = ?", nickname).First(&acc)
+	om.Model(&acc).Related(&assets)
 	return assets
 }
 
-func getCoinsFromAssetId(id uint) []CoinAsset {
+func (om *OrmManager) GetCoinsFromAssetId(id uint) []CoinAsset {
 	asset := Asset{}
 	asset.ID = id
 	as := make([]CoinAsset, 0)
-	orm.Model(&asset).Related(&as)
+	om.Model(&asset).Related(&as)
 	return as
 }

@@ -7,7 +7,7 @@ import (
 // database table
 type Account struct {
 	gorm.Model
-	NickName      string
+	NickName      string `gorm:"unique"`
 	ExchangeName  string
 	ApiKey        string
 	ApiSecretKey  string

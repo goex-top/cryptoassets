@@ -5,35 +5,32 @@ import (
 )
 
 var (
-	db = initOrm()
+	db OrmManager
 )
 
 func init() {
-}
-func TestOrmCreate(t *testing.T) {
-	asset := Asset{
-		Btc:  1,
-		Usdt: 2222,
-		Coins: []CoinAsset{{
-			CoinName:     "BTC",
-			Amount:       1000,
-			FrozenAmount: 20000,
-		}, {
-			CoinName:     "ETH",
-			Amount:       10,
-			FrozenAmount: 20,
-		}},
-	}
-	db.Create(&asset)
-	db.Save(&asset)
+	db.DB = initOrm()
 }
 
-func TestOrmRelate(t *testing.T) {
-	asset := Asset{}
-	//asset.ID = 6
-	coins := make([]CoinAsset, 0)
-	db.Find(&asset, 5)
-	db.Model(&asset).Related(&coins)
-	t.Log(asset)
-	t.Log(coins)
+func TestOrmManager_AddAccount(t *testing.T) {
+	t.Log(db.AddAccount(Account{
+		NickName:      "aaa",
+		ExchangeName:  "",
+		ApiKey:        "",
+		ApiSecretKey:  "",
+		ApiPassphrase: "",
+	}))
+	t.Log(db.AddAccount(Account{
+		NickName:      "bbb",
+		ExchangeName:  "",
+		ApiKey:        "",
+		ApiSecretKey:  "",
+		ApiPassphrase: "",
+	}))
+}
+
+func TestFindAccountFromNickName(t *testing.T) {
+	t.Log(db.FindAccountFromNickName("aaa"))
+	t.Log(db.FindAccountFromNickName("bbb"))
+	t.Log(db.FindAccountFromNickName("ccc"))
 }

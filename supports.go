@@ -9,7 +9,7 @@ var (
 		goex.OKEX_SWAP,
 		goex.HBDM,
 		goex.COINBENE,
-		goex.FMEX,
+		//goex.FMEX,
 	}
 	SpotList = []string{
 		goex.POLONIEX,
@@ -20,13 +20,29 @@ var (
 		goex.BINANCE,
 		goex.BITTREX,
 		goex.BITHUMB,
-		goex.GDAX,
 		goex.GATEIO,
 		goex.ZB,
-		goex.COINEX,
-		goex.FCOIN,
-		goex.FCOIN_MARGIN,
 		goex.BIGONE,
 		goex.HITBTC,
+		//goex.COINEX,
+		//goex.GDAX,
+		//goex.FCOIN_MARGIN,
+		//goex.FCOIN,
 	}
+	List = make(map[string][]string)
 )
+
+func init() {
+	List["OKEx"] = []string{goex.OKEX_FUTURE, goex.OKEX_SWAP, goex.OKEX_V3}
+	List["Huobi"] = []string{goex.HBDM, goex.HUOBI_PRO}
+	List["BitMEX"] = []string{goex.BITMEX}
+	List["Poloniex"] = []string{goex.POLONIEX}
+	List["Bitstamp"] = []string{goex.BITSTAMP}
+	List["Binance"] = []string{goex.BINANCE}
+	List["Bittrex"] = []string{goex.BITTREX}
+	List["Bithumb"] = []string{goex.BITHUMB}
+	List["Gate.io"] = []string{goex.GATEIO}
+	List["ZB"] = []string{goex.ZB}
+	List["BigONE"] = []string{goex.BIGONE}
+	List["HitBTC"] = []string{goex.HITBTC}
+}
