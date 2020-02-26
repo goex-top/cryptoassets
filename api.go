@@ -7,6 +7,25 @@ import (
 	"strconv"
 )
 
+var ErrorMsg = map[int]string{
+	3000: "nickname duplicate",
+}
+
+func SendErrorMsg(c echo.Context, errorCode int) error {
+	msg, ok := ErrorMsg[errorCode]
+	if ok {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"error_code": errorCode,
+			"error_msg":  msg,
+		})
+	} else {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"error_code": errorCode,
+			"error_msg":  "unknown error",
+		})
+	}
+}
+
 func GetSettings(c echo.Context) error {
 	type AccountSummary struct {
 		gorm.Model
@@ -34,7 +53,7 @@ func AddSettings(c echo.Context) error {
 	pass_key := c.FormValue("pass_key")
 
 	if orm.HasNickName(nick_name) {
-		return c.String(http.StatusOK, `{code:3000,error: "昵称重名, 请检查"}`)
+		return SendErrorMsg(c, 3000)
 	}
 	account := Account{
 		NickName:      nick_name,

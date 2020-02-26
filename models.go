@@ -19,6 +19,8 @@ type Asset struct {
 	gorm.Model
 	Btc      float64
 	Usdt     float64
+	Usd      float64
+	Cny      float64
 	Btc_Usdt float64
 	Usdt_Usd float64
 	Usd_Cny  float64
@@ -31,6 +33,10 @@ type CoinAsset struct {
 	CoinName     string
 	Amount       float64
 	FrozenAmount float64
+	Btc          float64
+	Usdt         float64
+	Usd          float64
+	Cny          float64
 }
 
 // configure

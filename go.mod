@@ -9,5 +9,8 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/nntaoli-project/GoEx v1.0.11
+	github.com/piquette/finance-go v1.0.0
+	github.com/shopspring/decimal v0.0.0-20200226005030-a08b92da27ed // indirect
 	github.com/spf13/viper v1.6.2
+
 )
