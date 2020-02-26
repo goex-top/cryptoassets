@@ -11,6 +11,7 @@ var (
 	accounts     []Account
 	orm          OrmManager
 	yahooBackEnd *finance.Backends
+	rate         Rate
 )
 
 func main() {

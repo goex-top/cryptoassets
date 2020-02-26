@@ -1,13 +1,25 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	goex "github.com/nntaoli-project/GoEx"
 	"github.com/piquette/finance-go"
 	"github.com/piquette/finance-go/forex"
 	"net"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 )
+
+type Rate struct {
+	mu       sync.RWMutex
+	BTC_USD  float64
+	USDT_USD float64
+	USD_CNY  float64
+}
 
 func newHttpClient(proxy string) *http.Client {
 	return &http.Client{
@@ -35,18 +47,18 @@ func GetFinanceFromYahoo(symbol string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return q.FiftyDayAverage, nil
+	return (q.Bid + q.Ask) / 2, nil
 }
 
-func GetUSDCNY() (float64, error) {
+func GetUSDCNYFromYahoo() (float64, error) {
 	return GetFinanceFromYahoo("USDCNY=X")
 }
 
-func GetBTCUSD() (float64, error) {
+func GetBTCUSDFromYahoo() (float64, error) {
 	return GetFinanceFromYahoo("BTCUSD=X")
 }
 
-func GetBTCUSDCNY() (float64, float64, error) {
+func GetBTCUSDCNYFromYahoo() (float64, float64, error) {
 	s_btcusd := "BTCUSD=X"
 	s_usdcny := "USDCNY=X"
 	symbols := []string{s_btcusd, s_usdcny}
@@ -61,41 +73,148 @@ func GetBTCUSDCNY() (float64, float64, error) {
 
 		q := iter.ForexPair()
 		if q.Symbol == s_usdcny {
-			usdcny = q.FiftyDayAverage
+			usdcny = (q.Bid + q.Ask) / 2
 		} else if q.Symbol == s_btcusd {
-			btcusd = q.FiftyDayAverage
+			btcusd = (q.Bid + q.Ask) / 2
 		}
 	}
 	return btcusd, usdcny, nil
 }
 
-// https://api.coinmarketcap.com/v2/ticker/825/
-//{
-//"attention": "WARNING: This API is now deprecated and will be taken offline soon.  Please switch to the new CoinMarketCap API to avoid interruptions in service. (https://pro.coinmarketcap.com/migrate/)",
-//"data": {
-//"id": 825,
-//"name": "Tether",
-//"symbol": "USDT",
-//"website_slug": "tether",
-//"rank": 5,
-//"circulating_supply": 4642367414,
-//"total_supply": 4776930644,
-//"max_supply": null,
-//"quotes": {
-//"USD": {
-//"price": 1.0022976076,
-//"volume_24h": 59823709328.9464,
-//"market_cap": 4653033752,
-//"percent_change_1h": 0.14,
-//"percent_change_24h": 0.03,
-//"percent_change_7d": 0.11
-//}
-//},
-//"last_updated": 1582689198
-//},
-//"metadata": {
-//"timestamp": 1582688376,
-//"warning": "WARNING: This API is now deprecated and will be taken offline soon.  Please switch to the new CoinMarketCap API to avoid interruptions in service. (https://pro.coinmarketcap.com/migrate/)",
-//"error": null
-//}
-//}
+type CoinMarketCapRsp struct {
+	Attention string `json:"attention"`
+	Data      struct {
+		CirculatingSupply float64 `json:"circulating_supply"`
+		ID                int     `json:"id"`
+		LastUpdated       int     `json:"last_updated"`
+		MaxSupply         string  `json:"max_supply"`
+		Name              string  `json:"name"`
+		Quotes            struct {
+			USD struct {
+				MarketCap        float64 `json:"market_cap"`
+				PercentChange1h  float64 `json:"percent_change_1h"`
+				PercentChange24h float64 `json:"percent_change_24h"`
+				PercentChange7d  float64 `json:"percent_change_7d"`
+				Price            float64 `json:"price"`
+				Volume24h        float64 `json:"volume_24h"`
+			} `json:"USD"`
+		} `json:"quotes"`
+		Rank        int     `json:"rank"`
+		Symbol      string  `json:"symbol"`
+		TotalSupply float64 `json:"total_supply"`
+		WebsiteSlug string  `json:"website_slug"`
+	} `json:"data"`
+	Metadata struct {
+		Error     string `json:"error"`
+		Timestamp int    `json:"timestamp"`
+		Warning   string `json:"warning"`
+	} `json:"metadata"`
+}
+
+func GetUSDTUSDFromCoinMarektCap() (float64, error) {
+	url := "https://api.coinmarketcap.com/v2/ticker/825"
+	client := newHttpClient(conf.Proxy)
+	rsp, err := goex.HttpGet5(client, url, nil)
+
+	if err != nil {
+		return 0, err
+	}
+
+	cm := CoinMarketCapRsp{}
+	err = json.Unmarshal(rsp, &cm)
+	if err != nil {
+		return 0, err
+	}
+	return cm.Data.Quotes.USD.Price, nil
+}
+
+func GetBTCUSDFromCoinMarektCap() (float64, error) {
+	url := "https://api.coinmarketcap.com/v2/ticker/1"
+	client := newHttpClient(conf.Proxy)
+	rsp, err := goex.HttpGet5(client, url, nil)
+
+	if err != nil {
+		return 0, err
+	}
+
+	cm := CoinMarketCapRsp{}
+	err = json.Unmarshal(rsp, &cm)
+	if err != nil {
+		return 0, err
+	}
+	return cm.Data.Quotes.USD.Price, nil
+}
+
+func UpdateRate() {
+	wg := sync.WaitGroup{}
+	wg.Add(3)
+	go func() {
+		wg.Done()
+		usdcny, err := GetUSDCNYFromYahoo()
+		if err == nil {
+			updateUsdCny(usdcny)
+		}
+		fmt.Println("err", err, "usdcny", usdcny)
+	}()
+
+	go func() {
+		wg.Done()
+		btcusd, err := GetBTCUSDFromCoinMarektCap()
+		if err == nil {
+			updateBtcUsd(btcusd)
+		}
+		fmt.Println("err", err, "btcusd", btcusd)
+	}()
+
+	go func() {
+		wg.Done()
+		usdtusd, err := GetUSDTUSDFromCoinMarektCap()
+		if err == nil {
+			updateUsdtUsd(usdtusd)
+		}
+		fmt.Println("err", err, "usdtusd", usdtusd)
+	}()
+	wg.Wait()
+
+}
+
+func StartFetchRate(ctx context.Context) {
+	initYahooBackend()
+	go NewWorker(ctx, 2*time.Hour, UpdateRate)
+}
+
+func updateBtcUsd(btcusd float64) {
+	rate.mu.Lock()
+	rate.BTC_USD = btcusd
+	rate.mu.Unlock()
+}
+
+func updateUsdtUsd(usdtusd float64) {
+	rate.mu.Lock()
+	rate.USDT_USD = usdtusd
+	rate.mu.Unlock()
+}
+
+func updateUsdCny(usdcny float64) {
+	rate.mu.Lock()
+	rate.USD_CNY = usdcny
+	rate.mu.Unlock()
+}
+
+func GetBtcUsd() float64 {
+	rate.mu.RLock()
+	defer rate.mu.RUnlock()
+	return rate.BTC_USD
+}
+
+func GetUsdtUsd() float64 {
+	rate.mu.RLock()
+	defer rate.mu.RUnlock()
+	return rate.USDT_USD
+}
+
+func GetUsdCny() float64 {
+	rate.mu.RLock()
+	defer rate.mu.RUnlock()
+	return rate.USD_CNY
+}
