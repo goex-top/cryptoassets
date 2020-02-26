@@ -20,3 +20,10 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 
 ## 密钥存储
 用户创建交易所时，密钥会通过AES(ECB)加密后存储至数据库中，切记`toml`配置文件中的`password`，这个`password`是解密数据库中密钥的唯一密码。
+
+## 汇率
+* USD/CNY 从[雅虎财经](https://finance.yahoo.com/)获取
+* USDT/USD 从[CoinMarketCap](https://coinmarketcap.com/)获取
+* BTC/USD 从[CoinMarketCap](https://coinmarketcap.com/)获取
+
+**更新周期为2小时**
