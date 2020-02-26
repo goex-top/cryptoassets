@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/labstack/echo"
 	"github.com/piquette/finance-go"
+	"log"
+	"os"
 )
 
 var (
@@ -12,9 +14,11 @@ var (
 	orm          OrmManager
 	yahooBackEnd *finance.Backends
 	rate         Rate
+	logger       *log.Logger
 )
 
 func main() {
+	logger = log.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 	orm.DB = initOrm()
 	conf, _ = loadConfig()
 

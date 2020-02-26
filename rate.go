@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	goex "github.com/nntaoli-project/GoEx"
+	"github.com/nntaoli-project/goex"
 	"github.com/piquette/finance-go"
 	"github.com/piquette/finance-go/forex"
 	"net"
