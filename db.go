@@ -52,3 +52,30 @@ func (om *OrmManager) GetCoinsFromAssetId(id uint) []CoinAsset {
 	om.Model(&asset).Related(&as)
 	return as
 }
+
+func (om *OrmManager) AddAsset(asset Asset) Asset {
+	om.Create(&asset)
+	return asset
+}
+
+func (om *OrmManager) FindAssets(accountId uint) []Asset {
+	account := Account{}
+	account.ID = accountId
+	assets := make([]Asset, 0)
+	om.Model(&account).Related(&assets)
+	return assets
+}
+func (om *OrmManager) AddCoinAssets(coinAssets []CoinAsset) error {
+	for _, ca := range coinAssets {
+		db := om.Create(&ca)
+		if db.Error != nil {
+			return db.Error
+		}
+	}
+	return nil
+}
+
+func (om *OrmManager) AddCoinAsset(coinAsset CoinAsset) CoinAsset {
+	om.Create(&coinAsset)
+	return coinAsset
+}
