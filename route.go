@@ -11,11 +11,15 @@ func route(e *echo.Echo) {
 
 	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey:  []byte(tokenSecKey),
-		TokenLookup: "query:X-Token",
+		TokenLookup: "header:Authorization",
 	}))
 
-	g.GET("/setting", GetSettings)
-	g.POST("/setting", AddSettings)
+	g.GET("/support", GetSupport)
+
+	g.GET("/setting", GetSetting)
+	g.POST("/setting", AddSetting)
+	g.DELETE("/setting/:id", DeleteSetting)
+
 	g.GET("/asset_history", GetAssetHistory)
 	g.GET("/asset", GetCurrentAsset)
 	g.GET("/exchange_detail", GetCurrentCoins)

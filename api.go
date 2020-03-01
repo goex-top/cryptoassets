@@ -48,13 +48,15 @@ func SendOK(c echo.Context, data interface{}) error {
 	})
 }
 
-func GetSettings(c echo.Context) error {
+// setting - GET
+func GetSetting(c echo.Context) error {
 	type AccountSummary struct {
 		gorm.Model
-		NickName     string
-		ExchangeName string
-		ApiKey       string
+		NickName     string `json:"nick_name"`
+		ExchangeName string `json:"exchange_name"`
+		ApiKey       string `json:"api_key"`
 	}
+	time.Now().Format(time.StampMicro)
 	acc := make([]AccountSummary, 0)
 	for _, v := range accounts {
 		acc = append(acc, AccountSummary{
@@ -67,26 +69,61 @@ func GetSettings(c echo.Context) error {
 	return SendOK(c, acc)
 }
 
-func AddSettings(c echo.Context) error {
-	nick_name := c.FormValue("nick_name")
-	exchange_name := c.FormValue("exchange_name")
-	api_key := c.FormValue("api_key")
-	sec_key := c.FormValue("sec_key")
-	pass_key := c.FormValue("pass_key")
+// setting - POST
+func AddSetting(c echo.Context) error {
+	type Setting struct {
+		ExchangeName string `json:"exchange_name"`
+		NickName     string `json:"nick_name"`
+		ApiKey       string `json:"api_key"`
+		SecKey       string `json:"sec_key"`
+		PassKey      string `json:"pass_key"`
+	}
+	setting := new(Setting)
+	if err := c.Bind(setting); err != nil {
+		return err
+	}
 
-	if orm.HasNickName(nick_name) {
+	if orm.HasNickName(setting.NickName) {
 		return SendErrorMsg(c, 3000)
 	}
-	account := Account{
-		NickName:      nick_name,
-		ExchangeName:  exchange_name,
-		ApiKey:        api_key,
-		ApiSecretKey:  sec_key,
-		ApiPassphrase: pass_key,
+	enApiSecretKey := ""
+	enApiPassphrase := ""
+	if setting.SecKey != "" {
+		enApiSecretKey = string(AESECBEncrypt([]byte(setting.SecKey), []byte(conf.User.Password)))
 	}
-	orm.AddAccount(account)
-	accounts = append(accounts, account)
+	if setting.PassKey != "" {
+		enApiPassphrase = string(AESECBEncrypt([]byte(setting.PassKey), []byte(conf.User.Password)))
+	}
+	account := Account{
+		NickName:      setting.NickName,
+		ExchangeName:  setting.ExchangeName,
+		ApiKey:        setting.ApiKey,
+		ApiSecretKey:  enApiSecretKey,
+		ApiPassphrase: enApiPassphrase,
+	}
+	acc, err := orm.AddAccount(account)
+	if err != nil {
+		return SendErrorMsg(c, -1)
+	}
+	accounts = append(accounts, acc)
 
+	return SendOK(c, acc)
+}
+
+// setting - DELETE
+func DeleteSetting(c echo.Context) error {
+	ids := c.Param("id")
+	id, _ := strconv.Atoi(ids)
+	err := orm.DeleteAccount(uint(id))
+	if err != nil {
+		return SendErrorMsg(c, -2)
+	}
+	for k, v := range accounts {
+		if v.ID == uint(id) {
+			accounts = append(accounts[:k], accounts[k+1:]...)
+			break
+		}
+	}
 	return SendOK(c, "{}")
 }
 
@@ -246,4 +283,12 @@ func GetUserInfo(c echo.Context) error {
 
 func UserLogout(c echo.Context) error {
 	return SendOK(c, "{}")
+}
+
+func GetSupport(c echo.Context) error {
+	list := make([]string, 0)
+	for k := range List {
+		list = append(list, k)
+	}
+	return SendOK(c, list)
 }

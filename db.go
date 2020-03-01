@@ -19,8 +19,16 @@ func initOrm() *gorm.DB {
 	return orm
 }
 
-func (om *OrmManager) AddAccount(account Account) error {
-	return om.Create(&account).Error
+func (om *OrmManager) AddAccount(account Account) (Account, error) {
+	o := om.Create(&account)
+	return account, o.Error
+}
+
+func (om *OrmManager) DeleteAccount(id uint) error {
+	acc := Account{}
+	acc.ID = id
+	o := om.Delete(&acc)
+	return o.Error
 }
 
 func (om *OrmManager) HasNickName(nickname string) bool {

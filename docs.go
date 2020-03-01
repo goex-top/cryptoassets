@@ -12,6 +12,10 @@ POST - /setting  新增一个平台
 req - [{nick_name: "aaa", exchange_name:"binance.com", api_key:"xxxxxx", sec_key:"xxxxxx", pass_key:"xxxxxx"}]
 rsp - none
 
+GET - /support 获取支持平台
+req - none
+rsp - [{ID:1, nick_name: "aaa", exchange_name:"binance.com", api_key:"xxxxxx"}]
+
 */
 
 /* asset
