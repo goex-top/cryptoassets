@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/goex-top/market_center"
 	"github.com/nntaoli-project/goex"
 	"github.com/nntaoli-project/goex/builder"
@@ -83,6 +84,53 @@ func deleteExchange(id uint) {
 		}
 	}
 	exchanges.mu.Unlock()
+}
+
+func verifyAccount(account Account) error {
+	secKey := ""
+	passKey := ""
+	if account.ApiSecretKey != "" {
+		secKey = string(AESECBDecrypt([]byte(account.ApiSecretKey), []byte(conf.User.Password)))
+	}
+	if account.ApiPassphrase != "" {
+		passKey = string(AESECBDecrypt([]byte(account.ApiPassphrase), []byte(conf.User.Password)))
+	}
+
+	exc, isOk := List[account.ExchangeName]
+	if !isOk {
+		return errors.New("do not support exchange")
+	}
+
+	for _, name := range exc {
+		if market_center.IsFutureExchange(name) {
+			var ex goex.FutureRestAPI
+
+			if passKey != "" {
+
+				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).
+					BuildFuture(name)
+			} else {
+				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).
+					BuildFuture(name)
+			}
+			_, err := ex.GetFutureUserinfo()
+			return err
+		} else {
+			var ex goex.API
+			if passKey != "" {
+				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).Build(name)
+			} else {
+				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).Build(name)
+			}
+			_, err := ex.GetAccount()
+			return err
+		}
+	}
+	return nil
 }
 
 func addAccount(account Account) {

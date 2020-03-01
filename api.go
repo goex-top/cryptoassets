@@ -11,34 +11,19 @@ import (
 	"time"
 )
 
-var ErrorMsg = map[int]string{
-	3000: "nickname duplicate",
-}
-
 type Response struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data"`
 }
 
-func SendErrorMsg(c echo.Context, errorCode int) error {
-	msg, ok := ErrorMsg[errorCode]
-	if ok {
-		return c.JSON(http.StatusOK, Response{
-			Code: 30000,
-			Data: map[string]interface{}{
-				"error_code": errorCode,
-				"error_msg":  msg,
-			},
-		})
-	} else {
-		return c.JSON(http.StatusOK, Response{
-			Code: 30000,
-			Data: map[string]interface{}{
-				"error_code": errorCode,
-				"error_msg":  "unknown error",
-			},
-		})
-	}
+func SendErrorMsg(c echo.Context, errorCode int, msg string) error {
+	return c.JSON(http.StatusOK, Response{
+		Code: 30000,
+		Data: map[string]interface{}{
+			"error_code": errorCode,
+			"error_msg":  msg,
+		},
+	})
 }
 
 func SendOK(c echo.Context, data interface{}) error {
@@ -84,7 +69,7 @@ func AddSetting(c echo.Context) error {
 	}
 
 	if orm.HasNickName(setting.NickName) {
-		return SendErrorMsg(c, 3000)
+		return SendErrorMsg(c, 3000, "个性名重复")
 	}
 	enApiSecretKey := ""
 	enApiPassphrase := ""
@@ -94,6 +79,7 @@ func AddSetting(c echo.Context) error {
 	if setting.PassKey != "" {
 		enApiPassphrase = string(AESECBEncrypt([]byte(setting.PassKey), []byte(conf.User.Password)))
 	}
+
 	account := Account{
 		NickName:      setting.NickName,
 		ExchangeName:  setting.ExchangeName,
@@ -101,9 +87,13 @@ func AddSetting(c echo.Context) error {
 		ApiSecretKey:  enApiSecretKey,
 		ApiPassphrase: enApiPassphrase,
 	}
+	err := verifyAccount(account)
+	if err != nil {
+		return SendErrorMsg(c, 3001, err.Error())
+	}
 	acc, err := orm.AddAccount(account)
 	if err != nil {
-		return SendErrorMsg(c, -1)
+		return SendErrorMsg(c, 3002, err.Error())
 	}
 	addAccount(acc)
 	return SendOK(c, acc)
@@ -115,7 +105,7 @@ func DeleteSetting(c echo.Context) error {
 	id, _ := strconv.Atoi(ids)
 	err := orm.DeleteAccount(uint(id))
 	if err != nil {
-		return SendErrorMsg(c, -2)
+		return SendErrorMsg(c, 3001, err.Error())
 	}
 	deleteAccount(uint(id))
 	return SendOK(c, "{}")
@@ -263,8 +253,7 @@ func GetUserInfo(c echo.Context) error {
 	token := c.QueryParam("token")
 	info, err := parseToken(token)
 	if err != nil {
-		fmt.Println(err)
-		return SendErrorMsg(c, -2)
+		return SendErrorMsg(c, 4000, err.Error())
 	}
 	user := info.(map[string]interface{})
 	return SendOK(c, map[string]interface{}{
