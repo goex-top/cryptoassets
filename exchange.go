@@ -5,10 +5,12 @@ import (
 	"github.com/goex-top/market_center"
 	"github.com/nntaoli-project/goex"
 	"github.com/nntaoli-project/goex/builder"
+	"sync"
 	"time"
 )
 
 type Exchange struct {
+	id        uint
 	name      string
 	nickname  string
 	accountId uint
@@ -16,42 +18,90 @@ type Exchange struct {
 	future    []goex.FutureRestAPI
 }
 
+type Exchanges struct {
+	mu        sync.RWMutex
+	exchanges []Exchange
+}
+
 func initExchanges(config Config) {
 	orm.Find(&accounts)
 
-	for _, v := range accounts {
-		secKey := AESECBDecrypt([]byte(v.ApiSecretKey), []byte(config.User.Password))
-		passKey := AESECBDecrypt([]byte(v.ApiPassphrase), []byte(config.User.Password))
-		exc, isOk := List[v.ExchangeName]
-		if !isOk {
-			continue
-		}
-		exchange := Exchange{name: v.ExchangeName, nickname: v.NickName, accountId: v.ID}
-		for _, name := range exc {
-			if market_center.IsFutureExchange(name) {
-				if string(passKey) != "" {
-					exchange.future = append(exchange.future,
-						builder.NewAPIBuilder().HttpProxy(config.Proxy).
-							APIKey(v.ApiKey).APISecretkey(string(secKey)).ApiPassphrase(string(passKey)).
-							BuildFuture(name))
-				} else {
-					exchange.future = append(exchange.future,
-						builder.NewAPIBuilder().HttpProxy(config.Proxy).
-							APIKey(v.ApiKey).APISecretkey(string(secKey)).
-							BuildFuture(name))
-				}
+	for _, acc := range accounts {
+		addExchange(acc)
+	}
+}
+
+func addExchange(account Account) {
+	secKey := ""
+	passKey := ""
+	if account.ApiSecretKey != "" {
+		secKey = string(AESECBDecrypt([]byte(account.ApiSecretKey), []byte(conf.User.Password)))
+	}
+	if account.ApiPassphrase != "" {
+		passKey = string(AESECBDecrypt([]byte(account.ApiPassphrase), []byte(conf.User.Password)))
+	}
+
+	exc, isOk := List[account.ExchangeName]
+	if !isOk {
+		return
+	}
+	exchange := Exchange{id: account.ID, name: account.ExchangeName, nickname: account.NickName, accountId: account.ID}
+	for _, name := range exc {
+		if market_center.IsFutureExchange(name) {
+			if passKey != "" {
+				exchange.future = append(exchange.future,
+					builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+						APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).
+						BuildFuture(name))
 			} else {
-				if string(passKey) != "" {
-					exchange.spot = builder.NewAPIBuilder().HttpProxy(config.Proxy).
-						APIKey(v.ApiKey).APISecretkey(string(secKey)).ApiPassphrase(string(passKey)).Build(name)
-				} else {
-					exchange.spot = builder.NewAPIBuilder().HttpProxy(config.Proxy).
-						APIKey(v.ApiKey).APISecretkey(string(secKey)).Build(name)
-				}
+				exchange.future = append(exchange.future,
+					builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+						APIKey(account.ApiKey).APISecretkey(secKey).
+						BuildFuture(name))
+			}
+		} else {
+			if passKey != "" {
+				exchange.spot = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).Build(name)
+			} else {
+				exchange.spot = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
+					APIKey(account.ApiKey).APISecretkey(secKey).Build(name)
 			}
 		}
-		exchanges = append(exchanges, exchange)
 	}
+	exchanges.mu.Lock()
+	exchanges.exchanges = append(exchanges.exchanges, exchange)
+	exchanges.mu.Unlock()
+}
+
+func deleteExchange(id uint) {
+	exchanges.mu.Lock()
+	for k, v := range exchanges.exchanges {
+		if v.id == id {
+			exchanges.exchanges = append(exchanges.exchanges[:k], exchanges.exchanges[k+1:]...)
+			break
+		}
+	}
+	exchanges.mu.Unlock()
+}
+
+func addAccount(account Account) {
+	accounts = append(accounts, account)
+	addExchange(account)
+	cancel()
+	ctx, cancel = context.WithCancel(context.Background())
+}
+
+func deleteAccount(id uint) {
+	for k, v := range accounts {
+		if v.ID == id {
+			accounts = append(accounts[:k], accounts[k+1:]...)
+			break
+		}
+	}
+	deleteExchange(id)
+	cancel()
+	ctx, cancel = context.WithCancel(context.Background())
 }
 
 func UpdateAccounts() {
@@ -62,7 +112,12 @@ func UpdateAccounts() {
 	btcusdt := btcusd * usdtusd
 	btccny := btcusd * usdcny
 	usdtcny := usdtusd * usdcny
-	for _, ex := range exchanges {
+
+	exchanges.mu.RLock()
+	exs := exchanges.exchanges
+	exchanges.mu.RUnlock()
+
+	for _, ex := range exs {
 		coins := make(map[string]CoinAsset)
 		if ex.spot != nil {
 			acc, err := ex.spot.GetAccount()

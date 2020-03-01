@@ -105,8 +105,7 @@ func AddSetting(c echo.Context) error {
 	if err != nil {
 		return SendErrorMsg(c, -1)
 	}
-	accounts = append(accounts, acc)
-
+	addAccount(acc)
 	return SendOK(c, acc)
 }
 
@@ -118,12 +117,7 @@ func DeleteSetting(c echo.Context) error {
 	if err != nil {
 		return SendErrorMsg(c, -2)
 	}
-	for k, v := range accounts {
-		if v.ID == uint(id) {
-			accounts = append(accounts[:k], accounts[k+1:]...)
-			break
-		}
-	}
+	deleteAccount(uint(id))
 	return SendOK(c, "{}")
 }
 

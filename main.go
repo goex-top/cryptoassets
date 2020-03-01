@@ -1,23 +1,27 @@
 package main
 
 import (
+	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/piquette/finance-go"
 	"log"
 	"os"
+	"time"
 )
 
 const tokenSecKey = "crypto_asset_token"
 
 var (
 	conf         Config
-	exchanges    []Exchange
+	exchanges    Exchanges
 	accounts     []Account
 	orm          OrmManager
 	yahooBackEnd *finance.Backends
 	rate         Rate
 	logger       *log.Logger
+	ctx          context.Context
+	cancel       func()
 )
 
 func main() {
@@ -25,8 +29,9 @@ func main() {
 	orm.DB = initOrm()
 	conf, _ = loadConfig()
 
+	ctx, cancel = context.WithCancel(context.Background())
 	initExchanges(conf)
-
+	StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
 	e := echo.New()
 
 	// Middleware
