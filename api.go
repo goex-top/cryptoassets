@@ -1,29 +1,51 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var ErrorMsg = map[int]string{
 	3000: "nickname duplicate",
 }
 
+type Response struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+}
+
 func SendErrorMsg(c echo.Context, errorCode int) error {
 	msg, ok := ErrorMsg[errorCode]
 	if ok {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"error_code": errorCode,
-			"error_msg":  msg,
+		return c.JSON(http.StatusOK, Response{
+			Code: 30000,
+			Data: map[string]interface{}{
+				"error_code": errorCode,
+				"error_msg":  msg,
+			},
 		})
 	} else {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"error_code": errorCode,
-			"error_msg":  "unknown error",
+		return c.JSON(http.StatusOK, Response{
+			Code: 30000,
+			Data: map[string]interface{}{
+				"error_code": errorCode,
+				"error_msg":  "unknown error",
+			},
 		})
 	}
+}
+
+func SendOK(c echo.Context, data interface{}) error {
+	return c.JSON(http.StatusOK, Response{
+		Code: 20000,
+		Data: data,
+	})
 }
 
 func GetSettings(c echo.Context) error {
@@ -42,7 +64,7 @@ func GetSettings(c echo.Context) error {
 			ApiKey:       v.ApiKey,
 		})
 	}
-	return c.JSON(http.StatusOK, acc)
+	return SendOK(c, acc)
 }
 
 func AddSettings(c echo.Context) error {
@@ -65,7 +87,7 @@ func AddSettings(c echo.Context) error {
 	orm.AddAccount(account)
 	accounts = append(accounts, account)
 
-	return c.String(http.StatusOK, "{}")
+	return SendOK(c, "{}")
 }
 
 func GetAssetHistory(c echo.Context) error {
@@ -102,7 +124,7 @@ func GetAssetHistory(c echo.Context) error {
 			Usd_Cny:  total.Usd_Cny,
 		})
 	}
-	return c.JSON(http.StatusOK, history)
+	return SendOK(c, history)
 }
 
 func GetCurrentAsset(c echo.Context) error {
@@ -123,12 +145,105 @@ func GetCurrentAsset(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, all)
+	return SendOK(c, all)
 }
 
 func GetCurrentCoins(c echo.Context) error {
 	//nick_name := c.QueryParam("nick_name")
 	ids := c.QueryParam("ID")
 	id, _ := strconv.Atoi(ids)
-	return c.JSON(http.StatusOK, orm.GetCoinsFromAssetId(uint(id)))
+	return SendOK(c, orm.GetCoinsFromAssetId(uint(id)))
+}
+
+func UserLogin(c echo.Context) error {
+
+	u := new(User)
+	if err := c.Bind(u); err != nil {
+		return err
+	}
+	if u.UserName == conf.User.UserName && u.Password == conf.User.Password {
+		// Create token
+		token := jwt.New(jwt.SigningMethodHS256)
+
+		// Set claims
+		claims := token.Claims.(jwt.MapClaims)
+		claims["name"] = u.UserName
+		claims["admin"] = true
+		claims["exp"] = time.Now().Add(time.Hour * 6).Unix()
+
+		// Generate encoded token and send it as response.
+		t, err := token.SignedString([]byte(tokenSecKey))
+		if err != nil {
+			return err
+		}
+
+		return SendOK(c, map[string]interface{}{
+			"token": t,
+		})
+	} else {
+		return echo.ErrUnauthorized
+	}
+}
+
+// Token parses and validates a token and return the logged in user
+func parseToken(tokenString string) (interface{}, error) {
+	if tokenString == "" {
+		return nil, nil // unauthorized
+	}
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(tokenSecKey), nil
+	})
+	if token.Valid {
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return nil, errors.New("token invalid")
+		}
+		// In a real authentication, here we should actually validate that the token is valid
+		return map[string]interface{}{
+			"name":  claims["name"].(string),
+			"admin": claims["admin"].(bool),
+			"exp":   int64(claims["exp"].(float64)),
+		}, nil
+	} else if ve, ok := err.(*jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			fmt.Println("That's not even a token")
+			return nil, errors.New("That's not even a token")
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			// Token is either expired or not active yet
+			fmt.Println("Timing is everything")
+			return nil, errors.New("Timing is everything")
+		} else {
+			fmt.Println("Couldn't handle this token:", err)
+			return nil, errors.New("Couldn't handle this token: " + err.Error())
+		}
+	} else {
+		fmt.Println("Couldn't handle this token:", err)
+		return nil, errors.New("Couldn't handle this token" + err.Error())
+	}
+
+	return nil, err
+}
+
+func GetUserInfo(c echo.Context) error {
+	token := c.QueryParam("token")
+	info, err := parseToken(token)
+	if err != nil {
+		fmt.Println(err)
+		return SendErrorMsg(c, -2)
+	}
+	user := info.(map[string]interface{})
+	return SendOK(c, map[string]interface{}{
+		"roles":        []string{"admin"},
+		"introduction": "I am a super administrator",
+		"avatar":       "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+		"name":         user["name"].(string),
+	})
+}
+
+func UserLogout(c echo.Context) error {
+	return SendOK(c, "{}")
 }

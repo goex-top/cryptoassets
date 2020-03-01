@@ -52,6 +52,6 @@ type Config struct {
 }
 
 type User struct {
-	UserName string
-	Password string
+	UserName string `json:"username" xml:"username" form:"username" query:"username"`
+	Password string `json:"password" xml:"password" form:"password" query:"password"`
 }

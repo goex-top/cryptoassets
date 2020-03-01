@@ -1,11 +1,14 @@
 package main
 
 import (
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/piquette/finance-go"
 	"log"
 	"os"
 )
+
+const tokenSecKey = "crypto_asset_token"
 
 var (
 	conf         Config
@@ -25,6 +28,14 @@ func main() {
 	initExchanges(conf)
 
 	e := echo.New()
+
+	// Middleware
+	e.Use(middleware.Logger())
+	//e.Use(middleware.Recover())
+
 	route(e)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Debug = true
+
+	//e.Logger.SetLevel(elog.DEBUG)
+	e.Logger.Fatal(e.Start(":9000"))
 }
