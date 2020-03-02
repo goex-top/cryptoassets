@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/nntaoli-project/goex"
 	"github.com/piquette/finance-go"
 	"github.com/piquette/finance-go/forex"
@@ -87,8 +86,11 @@ type CoinMarketCapRsp struct {
 		CirculatingSupply float64 `json:"circulating_supply"`
 		ID                int     `json:"id"`
 		LastUpdated       int     `json:"last_updated"`
-		MaxSupply         string  `json:"max_supply"`
 		Name              string  `json:"name"`
+		Rank              int     `json:"rank"`
+		Symbol            string  `json:"symbol"`
+		TotalSupply       float64 `json:"total_supply"`
+		WebsiteSlug       string  `json:"website_slug"`
 		Quotes            struct {
 			USD struct {
 				MarketCap        float64 `json:"market_cap"`
@@ -99,10 +101,7 @@ type CoinMarketCapRsp struct {
 				Volume24h        float64 `json:"volume_24h"`
 			} `json:"USD"`
 		} `json:"quotes"`
-		Rank        int     `json:"rank"`
-		Symbol      string  `json:"symbol"`
-		TotalSupply float64 `json:"total_supply"`
-		WebsiteSlug string  `json:"website_slug"`
+		//MaxSupply         string  `json:"max_supply"`
 	} `json:"data"`
 	Metadata struct {
 		Error     string `json:"error"`
@@ -111,7 +110,7 @@ type CoinMarketCapRsp struct {
 	} `json:"metadata"`
 }
 
-func GetUSDTUSDFromCoinMarektCap() (float64, error) {
+func GetUSDTUSDFromCoinMarketCap() (float64, error) {
 	url := "https://api.coinmarketcap.com/v2/ticker/825"
 	client := newHttpClient(conf.Proxy)
 	rsp, err := goex.HttpGet5(client, url, nil)
@@ -128,7 +127,7 @@ func GetUSDTUSDFromCoinMarektCap() (float64, error) {
 	return cm.Data.Quotes.USD.Price, nil
 }
 
-func GetBTCUSDFromCoinMarektCap() (float64, error) {
+func GetBTCUSDFromCoinMarketCap() (float64, error) {
 	url := "https://api.coinmarketcap.com/v2/ticker/1"
 	client := newHttpClient(conf.Proxy)
 	rsp, err := goex.HttpGet5(client, url, nil)
@@ -149,37 +148,33 @@ func UpdateRate() {
 	wg := sync.WaitGroup{}
 	wg.Add(3)
 	go func() {
-		wg.Done()
+		defer wg.Done()
 		usdcny, err := GetUSDCNYFromYahoo()
 		if err == nil {
 			updateUsdCny(usdcny)
 		}
-		fmt.Println("err", err, "usdcny", usdcny)
 	}()
 
 	go func() {
-		wg.Done()
-		btcusd, err := GetBTCUSDFromCoinMarektCap()
+		defer wg.Done()
+		btcusd, err := GetBTCUSDFromCoinMarketCap()
 		if err == nil {
 			updateBtcUsd(btcusd)
 		}
-		fmt.Println("err", err, "btcusd", btcusd)
 	}()
 
 	go func() {
-		wg.Done()
-		usdtusd, err := GetUSDTUSDFromCoinMarektCap()
+		defer wg.Done()
+		usdtusd, err := GetUSDTUSDFromCoinMarketCap()
 		if err == nil {
 			updateUsdtUsd(usdtusd)
 		}
-		fmt.Println("err", err, "usdtusd", usdtusd)
 	}()
 	wg.Wait()
 
 }
 
 func StartFetchRate(ctx context.Context) {
-	initYahooBackend()
 	go NewWorker(ctx, 2*time.Hour, UpdateRate)
 }
 

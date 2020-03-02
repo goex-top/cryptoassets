@@ -174,16 +174,28 @@ func UpdateAccounts() {
 			}
 			for _, sub := range acc.SubAccounts {
 				total := sub.Amount + sub.ForzenAmount
+				if total == 0 {
+					continue
+				}
 				coin := CoinAsset{
 					CoinName:     sub.Currency.String(),
 					Amount:       sub.Amount,
 					FrozenAmount: sub.ForzenAmount,
 				}
 				if sub.Currency == goex.USDT {
-					coin.Btc = total / btcusdt
+					if btcusdt != 0 {
+						coin.Btc = total / btcusdt
+					}
+
 					coin.Usdt = total
-					coin.Usd = total / usdtusd
-					coin.Cny = total / usdtcny
+					if usdtusd != 0 {
+						coin.Usd = total / usdtusd
+					}
+
+					if usdtcny != 0 {
+						coin.Cny = total / usdtcny
+					}
+
 				} else if sub.Currency == goex.BTC {
 					coin.Btc = total
 					coin.Usdt = total * btcusdt
@@ -203,14 +215,24 @@ func UpdateAccounts() {
 							coin.Usd = btc * btcusd
 							coin.Cny = btc * btccny
 						} else {
-							logger.Printf("coin:%s not ticker for value caculate", sub.Currency.String())
+							logger.Printf("coin: [%s] not ticker for value caculate", sub.Currency.String())
 						}
 					} else {
 						usdt := total * usdt_ticker.Last
-						coin.Btc = usdt / btcusdt
+						if btcusdt != 0 {
+							coin.Btc = usdt / btcusdt
+						}
+
 						coin.Usdt = usdt
-						coin.Usd = usdt / usdtusd
-						coin.Cny = usdt / usdtcny
+
+						if usdtusd != 0 {
+							coin.Usd = usdt / usdtusd
+						}
+
+						if usdtcny != 0 {
+							coin.Cny = usdt / usdtcny
+						}
+
 					}
 				}
 				coins[sub.Currency.String()] = coin
@@ -257,7 +279,7 @@ func UpdateAccounts() {
 								coin.Usd = btc * btcusd
 								coin.Cny = btc * btccny
 							} else {
-								logger.Printf("coin:%s not ticker for value caculate", sub.Currency.String())
+								logger.Printf("coin: [%s] not ticker for value caculate", sub.Currency.String())
 							}
 						} else {
 							usdt := total * usdt_ticker.Last
@@ -304,7 +326,10 @@ func UpdateAccounts() {
 			asset.Cny += c.Cny
 			coinassets = append(coinassets, c)
 		}
-		orm.AddAsset(asset)
+		asset = orm.AddAsset(asset)
+		for k := range coinassets {
+			coinassets[k].AssetID = asset.ID
+		}
 		orm.AddCoinAssets(coinassets)
 	}
 }

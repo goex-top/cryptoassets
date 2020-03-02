@@ -13,10 +13,22 @@ func TestGetBTCUSDCNY(t *testing.T) {
 }
 
 func TestGetUSDTUSD(t *testing.T) {
-	t.Log(GetUSDTUSDFromCoinMarektCap())
+	t.Log(GetUSDTUSDFromCoinMarketCap())
 }
 
 func TestStartFetchRate(t *testing.T) {
 	StartFetchRate(context.Background())
 	time.Sleep(time.Second * 5)
+}
+
+func TestGetUSDCNYFromYahoo(t *testing.T) {
+	t.Log(GetUSDCNYFromYahoo())
+}
+
+func TestGetUSDTUSDFromCoinMarketCap(t *testing.T) {
+	t.Log(GetUSDTUSDFromCoinMarketCap())
+}
+
+func TestGetBTCUSDFromCoinMarketCap(t *testing.T) {
+	t.Log(GetBTCUSDFromCoinMarketCap())
 }

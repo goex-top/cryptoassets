@@ -7,7 +7,8 @@ import (
 	"github.com/piquette/finance-go"
 	"log"
 	"os"
-	"time"
+	"os/signal"
+	"syscall"
 )
 
 const tokenSecKey = "crypto_asset_token"
@@ -31,7 +32,23 @@ func main() {
 
 	ctx, cancel = context.WithCancel(context.Background())
 	initExchanges(conf)
-	StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
+	initYahooBackend()
+
+	ctx1, cancel1 := context.WithCancel(context.Background())
+
+	go func() {
+		exitSignal := make(chan os.Signal, 1)
+		sigs := []os.Signal{os.Interrupt, syscall.SIGILL, syscall.SIGINT, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGTERM}
+		signal.Notify(exitSignal, sigs...)
+
+		<-exitSignal
+		cancel1()
+	}()
+	UpdateRate()
+
+	StartFetchRate(ctx1)
+
+	//StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
 	e := echo.New()
 
 	// Middleware

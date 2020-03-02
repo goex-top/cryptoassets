@@ -2,17 +2,16 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func route(e *echo.Echo) {
 
 	g := e.Group("/api")
 
-	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey:  []byte(tokenSecKey),
-		TokenLookup: "header:Authorization",
-	}))
+	//g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+	//	SigningKey:  []byte(tokenSecKey),
+	//	TokenLookup: "header:Authorization",
+	//}))
 
 	g.GET("/support", GetSupport)
 

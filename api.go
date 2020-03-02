@@ -96,7 +96,7 @@ func AddSetting(c echo.Context) error {
 		return SendErrorMsg(c, 3002, err.Error())
 	}
 	addAccount(acc)
-	return SendOK(c, acc)
+	return SendOK(c, fmt.Sprintf(`{"id":%d}`, acc.ID))
 }
 
 // setting - DELETE
@@ -129,19 +129,30 @@ func GetAssetHistory(c echo.Context) error {
 			if index < 0 {
 				continue
 			}
-			total.Model = v[index].Model
 			total.Btc += v[index].Btc
-			total.Btc_Usdt += v[index].Btc_Usdt
 			total.Usdt += v[index].Usdt
-			total.Usdt_Usd += v[index].Usdt_Usd
-			total.Usd_Cny += v[index].Usd_Cny
+			total.Usd += v[index].Usd
+			total.Cny += v[index].Cny
+
+			total.Model = v[index].Model
+			total.Btc_Usdt = v[index].Btc_Usdt
+			total.Btc_Usd = v[index].Btc_Usd
+			total.Btc_Cny = v[index].Btc_Cny
+			total.Usdt_Usd = v[index].Usdt_Usd
+			total.Usdt_Cny = v[index].Usdt_Cny
+			total.Usd_Cny = v[index].Usd_Cny
 		}
 		history = append(history, Asset{
-			Model:    total.Model,
 			Btc:      total.Btc,
 			Usdt:     total.Usdt,
-			Btc_Usdt: total.Usdt,
+			Usd:      total.Usd,
+			Cny:      total.Cny,
+			Model:    total.Model,
+			Btc_Usdt: total.Btc_Usdt,
+			Btc_Usd:  total.Btc_Usd,
+			Btc_Cny:  total.Btc_Cny,
 			Usdt_Usd: total.Usdt_Usd,
+			Usdt_Cny: total.Usdt_Cny,
 			Usd_Cny:  total.Usd_Cny,
 		})
 	}
