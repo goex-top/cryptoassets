@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/beaquant/utils"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
@@ -161,19 +162,21 @@ func GetAssetHistory(c echo.Context) error {
 
 func GetCurrentAsset(c echo.Context) error {
 	type NicknameAsset struct {
-		ID       uint
-		NickName string
-		Btc      float64
-		Usdt     float64
+		ID           uint    `json:"id"`
+		ExchangeName string  `json:"exchange_name"`
+		NickName     string  `json:"nick_name"`
+		Btc          float64 `json:"btc"`
+		Usdt         float64 `json:"usdt"`
 	}
 	all := make([]NicknameAsset, 0)
 	for _, v := range accounts {
 		acc := orm.GetAssetsFromNickname(v.NickName)
 		all = append(all, NicknameAsset{
-			ID:       acc[len(acc)-1].ID,
-			NickName: v.NickName,
-			Btc:      acc[len(acc)-1].Btc,
-			Usdt:     acc[len(acc)-1].Usdt,
+			ID:           acc[len(acc)-1].ID,
+			ExchangeName: v.ExchangeName,
+			NickName:     v.NickName,
+			Btc:          utils.Float64Round(acc[len(acc)-1].Btc, 8),
+			Usdt:         utils.Float64Round(acc[len(acc)-1].Usdt, 4),
 		})
 	}
 
@@ -181,9 +184,12 @@ func GetCurrentAsset(c echo.Context) error {
 }
 
 func GetCurrentCoins(c echo.Context) error {
-	//nick_name := c.QueryParam("nick_name")
-	ids := c.QueryParam("ID")
+	ids := c.QueryParam("id")
+	//ids := c.Param("id")
 	id, _ := strconv.Atoi(ids)
+	if id == 0 {
+		return SendErrorMsg(c, 40000, "can't find `id` param")
+	}
 	return SendOK(c, orm.GetCoinsFromAssetId(uint(id)))
 }
 
