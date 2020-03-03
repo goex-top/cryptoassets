@@ -193,7 +193,7 @@ func UpdateAccounts() {
 					}
 
 					if usdtcny != 0 {
-						coin.Cny = total / usdtcny
+						coin.Cny = total * usdtcny
 					}
 
 				} else if sub.Currency == goex.BTC {
@@ -230,9 +230,8 @@ func UpdateAccounts() {
 						}
 
 						if usdtcny != 0 {
-							coin.Cny = usdt / usdtcny
+							coin.Cny = usdt * usdtcny
 						}
-
 					}
 				}
 				coins[sub.Currency.String()] = coin
@@ -259,7 +258,7 @@ func UpdateAccounts() {
 						coin.Btc = total / btcusdt
 						coin.Usdt = total
 						coin.Usd = total / usdtusd
-						coin.Cny = total / usdtcny
+						coin.Cny = total * usdtcny
 					} else if sub.Currency == goex.BTC {
 						coin.Btc = total
 						coin.Usdt = total * btcusdt
@@ -286,7 +285,7 @@ func UpdateAccounts() {
 							coin.Btc = usdt / btcusdt
 							coin.Usdt = usdt
 							coin.Usd = usdt / usdtusd
-							coin.Cny = usdt / usdtcny
+							coin.Cny = usdt * usdtcny
 						}
 					}
 					asset, ok := coins[sub.Currency.String()]

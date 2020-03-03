@@ -152,6 +152,8 @@ func UpdateRate() {
 		usdcny, err := GetUSDCNYFromYahoo()
 		if err == nil {
 			updateUsdCny(usdcny)
+		} else {
+			logger.Printf("GetUSDCNYFromYahoo err:%v", err)
 		}
 	}()
 
@@ -160,6 +162,8 @@ func UpdateRate() {
 		btcusd, err := GetBTCUSDFromCoinMarketCap()
 		if err == nil {
 			updateBtcUsd(btcusd)
+		} else {
+			logger.Printf("GetBTCUSDFromCoinMarketCap err:%v", err)
 		}
 	}()
 
@@ -168,6 +172,8 @@ func UpdateRate() {
 		usdtusd, err := GetUSDTUSDFromCoinMarketCap()
 		if err == nil {
 			updateUsdtUsd(usdtusd)
+		} else {
+			logger.Printf("GetUSDTUSDFromCoinMarketCap err:%v", err)
 		}
 	}()
 	wg.Wait()
