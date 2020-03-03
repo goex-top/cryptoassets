@@ -52,5 +52,5 @@ func TestOrmManager_AddAsset(t *testing.T) {
 }
 
 func TestOrmManager_FindAssets(t *testing.T) {
-	t.Log(db.FindAssets(1))
+	t.Log(db.GetAssetsFromAccountId(1))
 }

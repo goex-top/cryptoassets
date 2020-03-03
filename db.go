@@ -45,6 +45,14 @@ func (om *OrmManager) FindAccountFromNickName(nickname string) Account {
 	return acc
 }
 
+func (om *OrmManager) GetAssetsFromAccountId(id uint) []Asset {
+	acc := Account{}
+	acc.ID = id
+	assets := make([]Asset, 0)
+	om.Model(&acc).Related(&assets)
+	return assets
+}
+
 func (om *OrmManager) GetAssetsFromNickname(nickname string) []Asset {
 	acc := om.FindAccountFromNickName(nickname)
 	assets := make([]Asset, 0)
@@ -66,13 +74,6 @@ func (om *OrmManager) AddAsset(asset Asset) Asset {
 	return asset
 }
 
-func (om *OrmManager) FindAssets(accountId uint) []Asset {
-	account := Account{}
-	account.ID = accountId
-	assets := make([]Asset, 0)
-	om.Model(&account).Related(&assets)
-	return assets
-}
 func (om *OrmManager) AddCoinAssets(coinAssets []CoinAsset) error {
 	for _, ca := range coinAssets {
 		db := om.Create(&ca)

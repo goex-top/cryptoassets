@@ -183,6 +183,37 @@ func GetCurrentAsset(c echo.Context) error {
 	return SendOK(c, all)
 }
 
+func GetCurrentCoinList(c echo.Context) error {
+	type Coin struct {
+		CoinName string  `json:"name"`
+		Usdt     float64 `json:"value"`
+	}
+	all := make([]Coin, 0)
+	for _, v := range accounts {
+		assets := orm.GetAssetsFromAccountId(v.ID)
+		asset := assets[len(assets)-1]
+		coins := orm.GetCoinsFromAssetId(asset.ID)
+		for _, vv := range coins {
+			found := false
+			for kkk, vvv := range all {
+				if vv.CoinName == vvv.CoinName {
+					found = true
+					all[kkk].Usdt += vv.Usdt
+					break
+				}
+			}
+			if !found {
+				all = append(all, Coin{
+					CoinName: vv.CoinName,
+					Usdt:     vv.Usdt,
+				})
+			}
+		}
+	}
+
+	return SendOK(c, all)
+}
+
 func GetCurrentCoins(c echo.Context) error {
 	ids := c.QueryParam("id")
 	//ids := c.Param("id")
@@ -193,8 +224,8 @@ func GetCurrentCoins(c echo.Context) error {
 	return SendOK(c, orm.GetCoinsFromAssetId(uint(id)))
 }
 
+// user login
 func UserLogin(c echo.Context) error {
-
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return err
@@ -266,6 +297,7 @@ func parseToken(tokenString string) (interface{}, error) {
 	return nil, err
 }
 
+// user info
 func GetUserInfo(c echo.Context) error {
 	token := c.QueryParam("token")
 	info, err := parseToken(token)
@@ -281,10 +313,12 @@ func GetUserInfo(c echo.Context) error {
 	})
 }
 
+// user logout
 func UserLogout(c echo.Context) error {
 	return SendOK(c, "{}")
 }
 
+// support
 func GetSupport(c echo.Context) error {
 	list := make([]string, 0)
 	for k := range List {

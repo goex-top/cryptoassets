@@ -21,7 +21,8 @@ func route(e *echo.Echo) {
 
 	g.GET("/asset_history", GetAssetHistory)
 	g.GET("/asset", GetCurrentAsset)
-	g.GET("/exchange_detail", GetCurrentCoins)
+	g.GET("/exchange_summary", GetCurrentCoins)
+	g.GET("/coin_list", GetCurrentCoinList)
 
 	// user
 	usr := e.Group("/api/user")

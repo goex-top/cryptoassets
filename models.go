@@ -34,7 +34,7 @@ type Asset struct {
 
 type CoinAsset struct {
 	gorm.Model
-	AssetID      uint
+	AssetID      uint    `json:"asset_id"`
 	CoinName     string  `json:"coin_name"`
 	Amount       float64 `json:"amount"`
 	FrozenAmount float64 `json:"frozen_amount"`

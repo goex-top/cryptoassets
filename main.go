@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 const tokenSecKey = "crypto_asset_token"
@@ -48,7 +49,7 @@ func main() {
 
 	StartFetchRate(ctx1)
 
-	//StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
+	StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
 	e := echo.New()
 
 	// Middleware
