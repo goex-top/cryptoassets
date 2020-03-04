@@ -4,6 +4,7 @@ os:
   - linux
 script:
   - git submodule update --init --recursive
+  - export GO111MODULE=on
   - go build
 # deploy:
 #   provider: releases

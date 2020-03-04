@@ -1,6 +1,8 @@
 # Crypto Assets
 统计你的个人资产
 
+![image](资产管理.gif)
+
 ## 缘由
 FCoin 跑路时，提币需邮件回复账户里资金数量，有多少人能知道自己资金具体数目？难。
 
@@ -38,3 +40,12 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 * BTC/USD 从[CoinMarketCap](https://coinmarketcap.com/)获取
 
 **更新周期为2小时**
+
+## 前端源码
+如果想修改web源码，请查看仓库`https://github.com/goex-top/cryptoassetsweb.git`
+
+## 咖啡一杯
+如果对你有用，可为作者买一杯咖啡/一碗热干面
+
+![image](alipay.png)
+![image](wechat.png)
