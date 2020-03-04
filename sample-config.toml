@@ -1,5 +1,6 @@
 proxy=""                 # socks5://127.0.0.1:1080
 freq=10                   # unit: second, 60 for 1min
+debug = true             # enable / disable verbase log print
 [user]
 username="admin"      #  username for login
 password="AbcdEfgh"   # password for login and encrypts and decrypts your apiseckey to store in database

@@ -9,13 +9,15 @@ type OrmManager struct {
 	*gorm.DB
 }
 
-func initOrm() *gorm.DB {
+func initOrm(debug bool) *gorm.DB {
 	orm, err := gorm.Open("sqlite3", "./assets.db3")
 	if err != nil {
 		panic(err)
 	}
 	orm.AutoMigrate(Account{}, Asset{}, CoinAsset{})
-	orm.LogMode(true)
+	if debug {
+		orm.LogMode(true)
+	}
 	return orm
 }
 

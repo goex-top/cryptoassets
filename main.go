@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/piquette/finance-go"
@@ -28,8 +29,8 @@ var (
 
 func main() {
 	logger = log.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
-	orm.DB = initOrm()
 	conf, _ = loadConfig()
+	orm.DB = initOrm(conf.Debug)
 
 	ctx, cancel = context.WithCancel(context.Background())
 	initExchanges(conf)
@@ -37,14 +38,6 @@ func main() {
 
 	ctx1, cancel1 := context.WithCancel(context.Background())
 
-	go func() {
-		exitSignal := make(chan os.Signal, 1)
-		sigs := []os.Signal{os.Interrupt, syscall.SIGILL, syscall.SIGINT, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGTERM}
-		signal.Notify(exitSignal, sigs...)
-
-		<-exitSignal
-		cancel1()
-	}()
 	UpdateRate()
 
 	StartFetchRate(ctx1)
@@ -55,10 +48,25 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	//e.Use(middleware.Recover())
+	e.File("/", "web/index.html")
+	e.Static("static", "web/static")
 
 	route(e)
-	e.Debug = true
+	if conf.Debug {
+		e.Debug = true
+	}
 
-	//e.Logger.SetLevel(elog.DEBUG)
+	go func() {
+		exitSignal := make(chan os.Signal, 1)
+		sigs := []os.Signal{os.Interrupt, syscall.SIGILL, syscall.SIGINT, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGTERM}
+		signal.Notify(exitSignal, sigs...)
+
+		s := <-exitSignal
+		cancel1()
+
+		fmt.Println("get signal:", s, ", exit!")
+		fmt.Println(e.Close())
+	}()
+
 	e.Logger.Fatal(e.Start(":9000"))
 }
