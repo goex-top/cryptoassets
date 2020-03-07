@@ -68,10 +68,10 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 如果对你有用，可为作者买一杯咖啡/一碗热干面
 
 <p align="center">
-  <a href="https://travis-ci.org/hilanmiao/LanMiaoDesktop/builds">
+  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png">
     <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png" width="300" alt="一杯咖啡">
   </a>
-  <a href="https://github.com/hilanmiao/LanMiaoDesktop/blob/master/LICENSE">
+  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png">
       <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png" width="300" alt="一碗热干面">
     </a>
 </p>
