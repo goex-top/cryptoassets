@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -27,10 +28,32 @@ var (
 	cancel       func()
 )
 
+
+func usage() {
+	fmt.Fprintf(os.Stderr, `version: v1.0.0
+Usage:  [-h] [-d=true|false]
+Options:
+`)
+	flag.PrintDefaults()
+}
+
 func main() {
+
+	var help bool
+	var debug bool
+	flag.BoolVar(&debug, "d", false, "enable debug mode")
+	flag.BoolVar(&help, "h", false, "this help")
+	flag.Usage = usage
+
+	flag.Parse()
+	if help {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	logger = log.New(os.Stdout, "", log.LstdFlags|log.Lshortfile)
 	conf, _ = loadConfig()
-	orm.DB = initOrm(conf.Debug)
+	orm.DB = initOrm(conf.Debug || debug)
 
 	ctx, cancel = context.WithCancel(context.Background())
 	initExchanges(conf)
@@ -45,14 +68,15 @@ func main() {
 	StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
 	e := echo.New()
 
-	// Middleware
 	e.Use(middleware.Logger())
 	//e.Use(middleware.Recover())
-	e.File("/", "web/index.html")
-	e.Static("static", "web/static")
+	if debug {
+		e.File("/", "web/index.html")
+		e.Static("static", "web/static")
+	}
 
 	route(e)
-	if conf.Debug {
+	if conf.Debug || debug {
 		e.Debug = true
 	}
 
