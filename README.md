@@ -40,7 +40,7 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 平台 | 现货 | 期货(合约) | 期货(永续) | LOGO
 :-: | :-: | :-: | :-: | :-: 
 [BitMEX](https://www.bitmex.com/register/tIRSfz) | | ☑️ | ☑️ | [![bitmex](https://user-images.githubusercontent.com/1294454/27766319-f653c6e6-5ed4-11e7-933d-f0bc3699ae8f.jpg)](https://www.bitmex.com/register/tIRSfz) |
-[Binance](https://www.binance.com/?ref=10052861) | ☑️|  |  | [![binance](https://user-images.githubusercontent.com/1294454/29604020-d5483cdc-87ee-11e7-94c7-d1a8d9169293.jpg)](https://www.binance.com/?ref=10052861) |
+[Binance](https://www.binance.com/?ref=10052861) | ☑️|  | ☑️ | [![binance](https://user-images.githubusercontent.com/1294454/29604020-d5483cdc-87ee-11e7-94c7-d1a8d9169293.jpg)](https://www.binance.com/?ref=10052861) |
 [OKEx](https://www.okex.com) | ☑️ | ☑️ | ☑️ |[![OKEx](https://user-images.githubusercontent.com/1294454/32552768-0d6dd3c6-c4a6-11e7-90f8-c043b64756a7.jpg)](https://www.okex.com) |
 [Huobi](https://www.huobipro.com/zh-cn/topic/invited/?invite_code=n6d33) | ☑️| ☑️ |  | [![huobipro](https://user-images.githubusercontent.com/1294454/27766569-15aa7b9a-5edd-11e7-9e7f-44791f4ee49c.jpg)](https://www.huobipro.com/zh-cn/topic/invited/?invite_code=n6d33) |
 [Poloniex](https://www.poloniex.com/?utm_source=goex&utm_medium=web) | ☑️|  |  | [![poloniex](https://user-images.githubusercontent.com/1294454/27766817-e9456312-5ee6-11e7-9b3c-b628ca5626a5.jpg)](https://www.poloniex.com/?utm_source=goex&utm_medium=web)|
@@ -56,8 +56,8 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 
 ## 汇率
 * USD/CNY 从[雅虎财经](https://finance.yahoo.com/)获取
-* USDT/USD 从[CoinMarketCap](https://coinmarketcap.com/)获取
-* BTC/USD 从[CoinMarketCap](https://coinmarketcap.com/)获取
+* USDT/USD 从[Binance US](https://www.binance.us/en/trade/USDT_USD)获取
+* BTC/USD 从[Binance US](https://www.binance.us/en/trade/BTC_USD)获取
 
 **更新周期为2小时**
 

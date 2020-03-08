@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/nntaoli-project/goex"
+	"github.com/nntaoli-project/goex/binance"
 	"github.com/piquette/finance-go"
 	"github.com/piquette/finance-go/forex"
 	"net"
@@ -110,6 +111,7 @@ type CoinMarketCapRsp struct {
 	} `json:"metadata"`
 }
 
+// deprecated
 func GetUSDTUSDFromCoinMarketCap() (float64, error) {
 	url := "https://api.coinmarketcap.com/v2/ticker/825"
 	client := newHttpClient(conf.Proxy)
@@ -127,6 +129,7 @@ func GetUSDTUSDFromCoinMarketCap() (float64, error) {
 	return cm.Data.Quotes.USD.Price, nil
 }
 
+// deprecated
 func GetBTCUSDFromCoinMarketCap() (float64, error) {
 	url := "https://api.coinmarketcap.com/v2/ticker/1"
 	client := newHttpClient(conf.Proxy)
@@ -144,6 +147,64 @@ func GetBTCUSDFromCoinMarketCap() (float64, error) {
 	return cm.Data.Quotes.USD.Price, nil
 }
 
+func GetUSDTUSDFromBinanceUS() (float64, error) {
+	var ba = binance.NewWithConfig(
+		&goex.APIConfig{
+			HttpClient: &http.Client{
+				Transport: &http.Transport{
+					Proxy: func(req *http.Request) (*url.URL, error) {
+						if conf.Proxy != "" {
+							return url.Parse("socks5://127.0.0.1:1080")
+						}
+						return nil, nil
+					},
+					Dial: (&net.Dialer{
+						Timeout: 10 * time.Second,
+					}).Dial,
+				},
+				Timeout: 10 * time.Second,
+			},
+			Endpoint:     binance.US_API_BASE_URL,
+			ApiKey:       "",
+			ApiSecretKey: "",
+		})
+	ticker, err := ba.GetTicker(goex.NewCurrencyPair2("USDT_USD"))
+
+	if err != nil {
+		return 0, err
+	}
+	return ticker.Last, nil
+}
+
+func GetBTCUSDFromCBinanceUS() (float64, error) {
+	var ba = binance.NewWithConfig(
+		&goex.APIConfig{
+			HttpClient: &http.Client{
+				Transport: &http.Transport{
+					Proxy: func(req *http.Request) (*url.URL, error) {
+						if conf.Proxy != "" {
+							return url.Parse("socks5://127.0.0.1:1080")
+						}
+						return nil, nil
+					},
+					Dial: (&net.Dialer{
+						Timeout: 10 * time.Second,
+					}).Dial,
+				},
+				Timeout: 10 * time.Second,
+			},
+			Endpoint:     binance.US_API_BASE_URL,
+			ApiKey:       "",
+			ApiSecretKey: "",
+		})
+	ticker, err := ba.GetTicker(goex.BTC_USD)
+
+	if err != nil {
+		return 0, err
+	}
+	return ticker.Last, nil
+}
+
 func UpdateRate() {
 	wg := sync.WaitGroup{}
 	wg.Add(3)
@@ -159,7 +220,7 @@ func UpdateRate() {
 
 	go func() {
 		defer wg.Done()
-		btcusd, err := GetBTCUSDFromCoinMarketCap()
+		btcusd, err := GetBTCUSDFromCBinanceUS()
 		if err == nil {
 			updateBtcUsd(btcusd)
 		} else {
@@ -169,7 +230,7 @@ func UpdateRate() {
 
 	go func() {
 		defer wg.Done()
-		usdtusd, err := GetUSDTUSDFromCoinMarketCap()
+		usdtusd, err := GetUSDTUSDFromBinanceUS()
 		if err == nil {
 			updateUsdtUsd(usdtusd)
 		} else {
