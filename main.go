@@ -28,7 +28,6 @@ var (
 	cancel       func()
 )
 
-
 func usage() {
 	fmt.Fprintf(os.Stderr, `version: v1.0.0
 Usage:  [-h] [-d=true|false]
@@ -70,7 +69,7 @@ func main() {
 
 	e.Use(middleware.Logger())
 	//e.Use(middleware.Recover())
-	if debug {
+	if !debug {
 		e.File("/", "web/index.html")
 		e.Static("static", "web/static")
 	}
