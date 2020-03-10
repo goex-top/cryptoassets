@@ -44,6 +44,7 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 [OKEx](https://www.okex.com) | ☑️ | ☑️ | ☑️ |[![OKEx](https://user-images.githubusercontent.com/1294454/32552768-0d6dd3c6-c4a6-11e7-90f8-c043b64756a7.jpg)](https://www.okex.com) |
 [Huobi](https://www.huobipro.com/zh-cn/topic/invited/?invite_code=n6d33) | ☑️| ☑️ |  | [![huobipro](https://user-images.githubusercontent.com/1294454/27766569-15aa7b9a-5edd-11e7-9e7f-44791f4ee49c.jpg)](https://www.huobipro.com/zh-cn/topic/invited/?invite_code=n6d33) |
 [Poloniex](https://www.poloniex.com/?utm_source=goex&utm_medium=web) | ☑️|  |  | [![poloniex](https://user-images.githubusercontent.com/1294454/27766817-e9456312-5ee6-11e7-9b3c-b628ca5626a5.jpg)](https://www.poloniex.com/?utm_source=goex&utm_medium=web)|
+[Bitfinex](https://www.bitfinex.com) | ☑️|  |  | [![bitfinex](https://user-images.githubusercontent.com/1294454/27766244-e328a50c-5ed2-11e7-947b-041416579bb3.jpg)](https://www.bitfinex.com)|
 [Bitstamp](https://www.bitstamp.net) | ☑️|  |  | [![bitstamp](https://user-images.githubusercontent.com/1294454/27786377-8c8ab57e-5fe9-11e7-8ea4-2b05b6bcceec.jpg)](https://www.bitstamp.net) |
 [Bittrex](https://bittrex.com) | ☑️|  |  | [![bittrex](https://user-images.githubusercontent.com/1294454/27766352-cf0b3c26-5ed5-11e7-82b7-f3826b7a97d8.jpg)](https://bittrex.com) |
 [Bithumb](https://www.bithumb.com) | ☑️|  |  | [![bithumb](https://user-images.githubusercontent.com/1294454/30597177-ea800172-9d5e-11e7-804c-b9d4fa9b56b0.jpg)](https://www.bithumb.com)|
