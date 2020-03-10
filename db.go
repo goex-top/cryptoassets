@@ -29,7 +29,7 @@ func (om *OrmManager) AddAccount(account Account) (Account, error) {
 func (om *OrmManager) DeleteAccount(id uint) error {
 	acc := Account{}
 	acc.ID = id
-	o := om.Delete(&acc)
+	o := om.Unscoped().Delete(&acc)
 	return o.Error
 }
 

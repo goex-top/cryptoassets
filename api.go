@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -97,13 +98,16 @@ func AddSetting(c echo.Context) error {
 		return SendErrorMsg(c, 3002, err.Error())
 	}
 	addAccount(acc)
-	return SendOK(c, fmt.Sprintf(`{"id":%d}`, acc.ID))
+	return SendOK(c, map[string]interface{}{"id": acc.ID, "create_at": time.Now().Format("2006-01-02 15:04:05")})
 }
 
 // setting - DELETE
 func DeleteSetting(c echo.Context) error {
 	ids := c.Param("id")
 	id, _ := strconv.Atoi(ids)
+	if id == 0 || ids == "" {
+		return SendErrorMsg(c, 3001, "id不能为空")
+	}
 	err := orm.DeleteAccount(uint(id))
 	if err != nil {
 		return SendErrorMsg(c, 3001, err.Error())
@@ -171,6 +175,9 @@ func GetCurrentAsset(c echo.Context) error {
 	all := make([]NicknameAsset, 0)
 	for _, v := range accounts {
 		acc := orm.GetAssetsFromNickname(v.NickName)
+		if len(acc) == 0 {
+			continue
+		}
 		all = append(all, NicknameAsset{
 			ID:           acc[len(acc)-1].ID,
 			ExchangeName: v.ExchangeName,
@@ -324,5 +331,6 @@ func GetSupport(c echo.Context) error {
 	for k := range List {
 		list = append(list, k)
 	}
+	sort.Strings(list)
 	return SendOK(c, list)
 }

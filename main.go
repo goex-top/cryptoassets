@@ -37,7 +37,6 @@ Options:
 }
 
 func main() {
-
 	var help bool
 	var debug bool
 	flag.BoolVar(&debug, "d", false, "enable debug mode")

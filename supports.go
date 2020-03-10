@@ -10,6 +10,7 @@ func init() {
 	List["OKEx"] = []string{goex.OKEX_FUTURE, goex.OKEX_SWAP, goex.OKEX_V3}
 	List["Huobi"] = []string{goex.HBDM, goex.HUOBI_PRO}
 	List["BitMEX"] = []string{goex.BITMEX}
+	List["Bitfinex"] = []string{goex.BITFINEX}
 	List["Poloniex"] = []string{goex.POLONIEX}
 	List["Bitstamp"] = []string{goex.BITSTAMP}
 	List["Binance"] = []string{goex.BINANCE, goex.BINANCE_SWAP}
