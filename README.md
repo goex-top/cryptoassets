@@ -20,6 +20,10 @@ FCoin 跑路时，提币需邮件回复账户里资金数量，有多少人能�
 * 打开浏览器访问 [http://localhost:9000](http://localhost:9000)
 * 输入配置文件`config.toml`中的用户名与密码
 
+### 添加API KEY
+在Web设置中添加平台的KEY
+![image](设置.png)
+
 ## 配置
 创建一份`config.toml`配置文件，如`cp sample-config.toml config.toml` ，修改其内容
 
@@ -35,6 +39,68 @@ password="AbcdEfgh"      # password for login and encrypts and decrypts your api
 ## 密钥存储
 * 用户创建交易所时，密钥会通过AES(ECB)加密后存储至数据库中，切记`toml`配置文件中的`password`，这个`password`是解密数据库中密钥的唯一密码。
 * 尽量创建只读API KEY
+
+## 数据库
+ORM库采用[GORM](https://github.com/jinzhu/gorm), 支持`MySQL`, `PostgreSQL`, `Sqlite3`, `SQL Server` 
+目前使用`sqlite3`存储, 数据库文件自动创建, **方便**
+
+### 数据库模型
+3张表
+* 账户
+  - 用于存储用户不同平台的API KEY
+* 历史资产。 各个平台的资产总计，每隔一段时间(根据配置中的freq)存储
+  - 资产有BTC, USD, USDT, CNY估值
+* 历史币数。各个平台中的币种明细
+  - 明细中有BTC, USD, USDT, CNY估值
+
+```sql
+CREATE TABLE accounts (
+    id               INTEGER       PRIMARY KEY AUTOINCREMENT,
+    created_at       DATETIME,
+    updated_at       DATETIME,
+    deleted_at       DATETIME,
+    nick_name        VARCHAR (255) UNIQUE,
+    exchange_name    VARCHAR (255),
+    api_key          VARCHAR (255),
+    api_secret_key   VARCHAR (255),
+    api_passphrase   VARCHAR (255),
+    last_update_time BIGINT
+);
+
+CREATE TABLE assets (
+    id         INTEGER  PRIMARY KEY AUTOINCREMENT,
+    created_at DATETIME,
+    updated_at DATETIME,
+    deleted_at DATETIME,
+    account_id INTEGER,
+    btc        REAL,
+    usdt       REAL,
+    usd        REAL,
+    cny        REAL,
+    btc_usdt   REAL,
+    btc_usd    REAL,
+    btc_cny    REAL,
+    usdt_usd   REAL,
+    usdt_cny   REAL,
+    usd_cny    REAL
+);
+
+CREATE TABLE coin_assets (
+    id            INTEGER       PRIMARY KEY AUTOINCREMENT,
+    created_at    DATETIME,
+    updated_at    DATETIME,
+    deleted_at    DATETIME,
+    asset_id      INTEGER,
+    coin_name     VARCHAR (255),
+    amount        REAL,
+    frozen_amount REAL,
+    btc           REAL,
+    usdt          REAL,
+    usd           REAL,
+    cny           REAL
+);
+
+```
 
 ## 目前支持平台
 平台 | 现货 | 期货(合约) | 期货(永续) | LOGO
