@@ -67,7 +67,7 @@ func main() {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
-	//e.Use(middleware.Recover())
+	e.Use(middleware.Recover())
 	if !debug {
 		e.File("/", "web/index.html")
 		e.Static("static", "web/static")
