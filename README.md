@@ -1,4 +1,7 @@
 # Crypto Assets
+
+[![Build Status](https://travis-ci.com/goex-top/cryptoassets.svg?branch=master)](https://travis-ci.com/goex-top/cryptoassets)
+
 统计你的个人资产
 
 ![image](资产管理.gif)

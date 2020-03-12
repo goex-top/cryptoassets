@@ -165,100 +165,41 @@ func UpdateAccounts() {
 	exs := exchanges.exchanges
 	exchanges.mu.RUnlock()
 
+	wg := sync.WaitGroup{}
 	for _, ex := range exs {
-		coins := make(map[string]CoinAsset)
-		if ex.spot != nil {
-			acc, err := ex.spot.GetAccount()
-			if err != nil {
-				continue
-			}
-			for _, sub := range acc.SubAccounts {
-				total := sub.Amount + sub.ForzenAmount
-				if total == 0 {
-					continue
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			coins := make(map[string]CoinAsset)
+			if ex.spot != nil {
+				acc, err := ex.spot.GetAccount()
+				if err != nil {
+					return
 				}
-				coin := CoinAsset{
-					CoinName:     sub.Currency.String(),
-					Amount:       sub.Amount,
-					FrozenAmount: sub.ForzenAmount,
-				}
-				if sub.Currency == goex.USDT {
-					if btcusdt != 0 {
-						coin.Btc = total / btcusdt
+				for _, sub := range acc.SubAccounts {
+					total := sub.Amount + sub.ForzenAmount
+					if total == 0 {
+						continue
 					}
-
-					coin.Usdt = total
-					if usdtusd != 0 {
-						coin.Usd = total / usdtusd
+					coin := CoinAsset{
+						CoinName:     sub.Currency.String(),
+						Amount:       sub.Amount,
+						FrozenAmount: sub.ForzenAmount,
 					}
-
-					if usdtcny != 0 {
-						coin.Cny = total * usdtcny
-					}
-
-				} else if sub.Currency == goex.BTC {
-					coin.Btc = total
-					coin.Usdt = total * btcusdt
-					coin.Usd = total * btcusd
-					coin.Cny = total * btccny
-				} else {
-					usdt_pair := goex.NewCurrencyPair(sub.Currency, goex.USDT)
-					btc_pair := goex.NewCurrencyPair(sub.Currency, goex.BTC)
-					usdt_ticker, err := ex.spot.GetTicker(usdt_pair)
-
-					if err != nil {
-						btc_ticker, err := ex.spot.GetTicker(btc_pair)
-						if err == nil {
-							btc := total * btc_ticker.Last
-							coin.Btc = btc
-							coin.Usdt = btc * btcusdt
-							coin.Usd = btc * btcusd
-							coin.Cny = btc * btccny
-						} else {
-							logger.Printf("coin: [%s] not ticker for value caculate", sub.Currency.String())
-						}
-					} else {
-						usdt := total * usdt_ticker.Last
+					if sub.Currency == goex.USDT {
 						if btcusdt != 0 {
-							coin.Btc = usdt / btcusdt
+							coin.Btc = total / btcusdt
 						}
 
-						coin.Usdt = usdt
-
+						coin.Usdt = total
 						if usdtusd != 0 {
-							coin.Usd = usdt / usdtusd
+							coin.Usd = total / usdtusd
 						}
 
 						if usdtcny != 0 {
-							coin.Cny = usdt * usdtcny
+							coin.Cny = total * usdtcny
 						}
-					}
-				}
-				coins[sub.Currency.String()] = coin
-			}
-		}
 
-		if len(ex.future) > 0 {
-			for _, future := range ex.future {
-				if future == nil {
-					continue
-				}
-				acc, err := future.GetFutureUserinfo()
-				if err != nil {
-					continue
-				}
-				for _, sub := range acc.FutureSubAccounts {
-					total := sub.AccountRights // todo: pnl, unpnl
-					coin := CoinAsset{
-						CoinName:     sub.Currency.String(),
-						Amount:       total,
-						FrozenAmount: 0,
-					}
-					if sub.Currency == goex.USDT {
-						coin.Btc = total / btcusdt
-						coin.Usdt = total
-						coin.Usd = total / usdtusd
-						coin.Cny = total * usdtcny
 					} else if sub.Currency == goex.BTC {
 						coin.Btc = total
 						coin.Usdt = total * btcusdt
@@ -282,55 +223,120 @@ func UpdateAccounts() {
 							}
 						} else {
 							usdt := total * usdt_ticker.Last
-							coin.Btc = usdt / btcusdt
+							if btcusdt != 0 {
+								coin.Btc = usdt / btcusdt
+							}
+
 							coin.Usdt = usdt
-							coin.Usd = usdt / usdtusd
-							coin.Cny = usdt * usdtcny
+
+							if usdtusd != 0 {
+								coin.Usd = usdt / usdtusd
+							}
+
+							if usdtcny != 0 {
+								coin.Cny = usdt * usdtcny
+							}
 						}
 					}
-					asset, ok := coins[sub.Currency.String()]
-					if ok {
-						asset.Amount += coin.Amount
-						asset.FrozenAmount += coin.FrozenAmount
-						asset.Btc += coin.Btc
-						asset.Usdt += coin.Usdt
-						asset.Usd += coin.Usd
-						asset.Cny += coin.Cny
-						coins[sub.Currency.String()] = asset
-					} else {
-						coins[sub.Currency.String()] = coin
+					coins[sub.Currency.String()] = coin
+				}
+			}
+
+			if len(ex.future) > 0 {
+				for _, future := range ex.future {
+					if future == nil {
+						continue
+					}
+					acc, err := future.GetFutureUserinfo()
+					if err != nil {
+						continue
+					}
+					for _, sub := range acc.FutureSubAccounts {
+						total := sub.AccountRights // todo: pnl, unpnl
+						coin := CoinAsset{
+							CoinName:     sub.Currency.String(),
+							Amount:       total,
+							FrozenAmount: 0,
+						}
+						if sub.Currency == goex.USDT {
+							coin.Btc = total / btcusdt
+							coin.Usdt = total
+							coin.Usd = total / usdtusd
+							coin.Cny = total * usdtcny
+						} else if sub.Currency == goex.BTC {
+							coin.Btc = total
+							coin.Usdt = total * btcusdt
+							coin.Usd = total * btcusd
+							coin.Cny = total * btccny
+						} else {
+							usdt_pair := goex.NewCurrencyPair(sub.Currency, goex.USDT)
+							btc_pair := goex.NewCurrencyPair(sub.Currency, goex.BTC)
+							usdt_ticker, err := ex.spot.GetTicker(usdt_pair)
+
+							if err != nil {
+								btc_ticker, err := ex.spot.GetTicker(btc_pair)
+								if err == nil {
+									btc := total * btc_ticker.Last
+									coin.Btc = btc
+									coin.Usdt = btc * btcusdt
+									coin.Usd = btc * btcusd
+									coin.Cny = btc * btccny
+								} else {
+									logger.Printf("coin: [%s] not ticker for value caculate", sub.Currency.String())
+								}
+							} else {
+								usdt := total * usdt_ticker.Last
+								coin.Btc = usdt / btcusdt
+								coin.Usdt = usdt
+								coin.Usd = usdt / usdtusd
+								coin.Cny = usdt * usdtcny
+							}
+						}
+						asset, ok := coins[sub.Currency.String()]
+						if ok {
+							asset.Amount += coin.Amount
+							asset.FrozenAmount += coin.FrozenAmount
+							asset.Btc += coin.Btc
+							asset.Usdt += coin.Usdt
+							asset.Usd += coin.Usd
+							asset.Cny += coin.Cny
+							coins[sub.Currency.String()] = asset
+						} else {
+							coins[sub.Currency.String()] = coin
+						}
 					}
 				}
 			}
-		}
 
-		asset := Asset{
-			AccountID: ex.accountId,
-			Btc:       0,
-			Usdt:      0,
-			Usd:       0,
-			Cny:       0,
-			Btc_Usdt:  btcusdt,
-			Btc_Usd:   btcusd,
-			Btc_Cny:   btccny,
-			Usdt_Usd:  usdtusd,
-			Usdt_Cny:  usdtcny,
-			Usd_Cny:   usdcny,
-		}
-		coinassets := make([]CoinAsset, 0)
-		for _, c := range coins {
-			asset.Btc += c.Btc
-			asset.Usdt += c.Usdt
-			asset.Usd += c.Usd
-			asset.Cny += c.Cny
-			coinassets = append(coinassets, c)
-		}
-		asset = orm.AddAsset(asset)
-		for k := range coinassets {
-			coinassets[k].AssetID = asset.ID
-		}
-		orm.AddCoinAssets(coinassets)
+			asset := Asset{
+				AccountID: ex.accountId,
+				Btc:       0,
+				Usdt:      0,
+				Usd:       0,
+				Cny:       0,
+				Btc_Usdt:  btcusdt,
+				Btc_Usd:   btcusd,
+				Btc_Cny:   btccny,
+				Usdt_Usd:  usdtusd,
+				Usdt_Cny:  usdtcny,
+				Usd_Cny:   usdcny,
+			}
+			coinassets := make([]CoinAsset, 0)
+			for _, c := range coins {
+				asset.Btc += c.Btc
+				asset.Usdt += c.Usdt
+				asset.Usd += c.Usd
+				asset.Cny += c.Cny
+				coinassets = append(coinassets, c)
+			}
+			asset = orm.AddAsset(asset)
+			for k := range coinassets {
+				coinassets[k].AssetID = asset.ID
+			}
+			orm.AddCoinAssets(coinassets)
+		}()
 	}
+	wg.Wait()
 }
 
 func StartFetchAccount(ctx context.Context, period time.Duration) {

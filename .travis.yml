@@ -17,9 +17,9 @@ script:
 before_deploy:
   - GOARCH=amd64 GOOS=linux   go build -o cryptoassets-linux-amd64
   - GOARCH=amd64 GOOS=windows go build -o cryptoassets-windows-amd64.exe
-  - zip -r cryptoassets-linux-amd64.zip cryptoassets-linux-amd64 config.toml README.md web/*
+  - zip -r cryptoassets-linux-amd64.zip cryptoassets-linux-amd64 sample-config.toml README.md web/*
   - unix2dos config.toml README.md
-  - zip -r cryptoassets-windows-amd64.zip cryptoassets-windows-amd64 config.toml README.md web/*
+  - zip -r cryptoassets-windows-amd64.zip cryptoassets-windows-amd64 sample-config.toml README.md web/*
   
 # deploy:
 #   provider: releases
