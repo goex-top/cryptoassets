@@ -25,33 +25,36 @@
   </a>
 </p>
 
-# Crypto Assets
-> [中文](https://github.com/goex-top/cryptoassets/blob/master/README-cn.md)
+# 资产统计
+> [English](https://github.com/goex-top/cryptoassets/blob/master/README.md)
 
-Recording your crypto assets with multi accounts
+统计你的个人资产
 
 ![image](资产管理.gif)
 
-## Let's start
-Run this tool, it can record your assets automatic.
+## 缘由
+FCoin 跑路时，提币需邮件回复账户里资金数量，有多少人能知道自己资金具体数目？难。
 
-### build with source code
-> [install `go`](https://golang.org/doc/install)
+## 快速上手
+打开工具时自动记录其各平台账户资金数目，统计其占比
+
+### 编译
+> [安装`go`](https://golang.org/doc/install)
 * `git clone https://github.com/goex-top/cryptoassets.git`
 * `git submodule update --init --recursive`
 * `go build`
 
-### Run it
+### 运行
 * `./cryptoassets`
-* open brower [http://localhost:9000](http://localhost:9000)
-* input username and password which in `config.toml` file
+* 打开浏览器访问 [http://localhost:9000](http://localhost:9000)
+* 输入配置文件`config.toml`中的用户名与密码
 
-### Add API KEY
-add API KEY in setting view
+### 添加API KEY
+在Web设置中添加平台的KEY
 ![image](设置.png)
 
-## Config
-create a config file, `config.toml`, using `cp sample-config.toml config.toml` , then modify it with followed description
+## 配置
+创建一份`config.toml`配置文件，如`cp sample-config.toml config.toml` ，修改其内容
 
 ```toml
 proxy=""                 # socks5://127.0.0.1:1080
@@ -62,22 +65,22 @@ username="admin"         #  username for login
 password="AbcdEfgh"      # password for login and encrypts and decrypts your apiseckey to store in database
 ```
 
-## API KEY store in database
-* When a user creates an exchange, the security key / passhase key will be encrypted by AES (ECB) and stored in the database. Remember the password in the toml configuration file. This password is the only password to decrypt the key in the database.
-* Try to create a read-only API KEY
+## 密钥存储
+* 用户创建交易所时，密钥会通过AES(ECB)加密后存储至数据库中，切记`toml`配置文件中的`password`，这个`password`是解密数据库中密钥的唯一密码。
+* 尽量创建只读API KEY
 
-## Database
-ORM using [GORM](https://github.com/jinzhu/gorm), support `MySQL`, `PostgreSQL`, `Sqlite3`, `SQL Server` 
-Currently `sqlite3` is used, it can create `sqlite3` file automatically, **CONVENIENCE**, you can copy it to everywhere
+## 数据库
+ORM库采用[GORM](https://github.com/jinzhu/gorm), 支持`MySQL`, `PostgreSQL`, `Sqlite3`, `SQL Server` 
+目前使用`sqlite3`存储, 数据库文件自动创建, **方便**
 
-### Data models
-3 tables
-* account
-  - store all API KEY of all exchanges
-* assets history. Total assets of each exchange, stored at regular intervals (based on freq in the configuration)
-  - total valuation of BTC, USD, USDT and CNY
-* coin assets history. All coin asset history for all exchanges
-  - coin valuation of BTC, USD, USDT and CNY
+### 数据库模型
+3张表
+* 账户
+  - 用于存储用户不同平台的API KEY
+* 历史资产。 各个平台的资产总计，每隔一段时间(根据配置中的freq)存储
+  - 资产有BTC, USD, USDT, CNY估值
+* 历史币数。各个平台中的币种明细
+  - 明细中有BTC, USD, USDT, CNY估值
 
 ```sql
 CREATE TABLE accounts (
@@ -128,8 +131,8 @@ CREATE TABLE coin_assets (
 
 ```
 
-## Exchanges to support
-Exchange | Spot | Future(Contract) | Future(Swap) | LOGO
+## 目前支持平台
+平台 | 现货 | 期货(合约) | 期货(永续) | LOGO
 :-: | :-: | :-: | :-: | :-: 
 [BitMEX](https://www.bitmex.com/register/tIRSfz) | | ☑️ | ☑️ | [![bitmex](https://user-images.githubusercontent.com/1294454/27766319-f653c6e6-5ed4-11e7-933d-f0bc3699ae8f.jpg)](https://www.bitmex.com/register/tIRSfz) |
 [Binance](https://www.binance.com/?ref=10052861) | ☑️|  | ☑️ | [![binance](https://user-images.githubusercontent.com/1294454/29604020-d5483cdc-87ee-11e7-94c7-d1a8d9169293.jpg)](https://www.binance.com/?ref=10052861) |
@@ -145,20 +148,20 @@ Exchange | Spot | Future(Contract) | Future(Swap) | LOGO
 [BigONE](https://b1.run/users/new?code=7JDU9ANL) | ☑️|  |  | [![BigONE](https://user-images.githubusercontent.com/1294454/69354403-1d532180-0c91-11ea-88ed-44c06cefdf87.jpg)](https://b1.run/users/new?code=7JDU9ANL)  |
 [HitBTC](https://hitbtc.com/) | ☑️|  |  | [![HitBTC](https://user-images.githubusercontent.com/1294454/27766555-8eaec20e-5edc-11e7-9c5b-6dc69fc42f5e.jpg)](https://hitbtc.com/) |
 
-**All assets in difference type of account per exchange will be merged**
+**工具会将支持平台的账户资金拉取进行合并**
 
-## Rate 
-* USD/CNY fetch from [finance of yahoo](https://finance.yahoo.com/)
-* USDT/USD fetch from[Binance US](https://www.binance.us/en/trade/USDT_USD)
-* BTC/USD fetch from[Binance US](https://www.binance.us/en/trade/BTC_USD)
+## 汇率
+* USD/CNY 从[雅虎财经](https://finance.yahoo.com/)获取
+* USDT/USD 从[Binance US](https://www.binance.us/en/trade/USDT_USD)获取
+* BTC/USD 从[Binance US](https://www.binance.us/en/trade/BTC_USD)获取
 
-**Update per 2 hours**
+**更新周期为2小时**
 
-## Source code of frontend
-If you want to modify frontend, please check out source code [https://github.com/goex-top/cryptoassetsweb.git](https://github.com/goex-top/cryptoassetsweb.git)
+## 前端源码
+如果想修改web源码，请查看仓库`https://github.com/goex-top/cryptoassetsweb.git`
 
-## Buy a coffee
-You can buy a coffee to author if it helpful.
+## 咖啡一杯
+如果对你有用，可为作者买一杯咖啡/一碗热干面
 
 BTC: 3Ga5Lh6jW3h51QvRraeFdH6AgpgkxgedL8
 
