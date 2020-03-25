@@ -65,7 +65,7 @@ func AddSetting(c echo.Context) error {
 		SecKey       string `json:"sec_key"`
 		PassKey      string `json:"pass_key"`
 	}
-	setting := new(Setting)
+	setting := &Setting{}
 	if err := c.Bind(setting); err != nil {
 		return err
 	}
@@ -86,13 +86,16 @@ func AddSetting(c echo.Context) error {
 		NickName:      setting.NickName,
 		ExchangeName:  setting.ExchangeName,
 		ApiKey:        setting.ApiKey,
-		ApiSecretKey:  enApiSecretKey,
-		ApiPassphrase: enApiPassphrase,
+		ApiSecretKey:  setting.SecKey,
+		ApiPassphrase: setting.PassKey,
 	}
 	err := verifyAccount(account)
 	if err != nil {
 		return SendErrorMsg(c, 3001, err.Error())
 	}
+	account.ApiSecretKey = enApiSecretKey
+	account.ApiPassphrase = enApiPassphrase
+
 	acc, err := orm.AddAccount(account)
 	if err != nil {
 		return SendErrorMsg(c, 3002, err.Error())

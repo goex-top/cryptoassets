@@ -87,15 +87,6 @@ func deleteExchange(id uint) {
 }
 
 func verifyAccount(account Account) error {
-	secKey := ""
-	passKey := ""
-	if account.ApiSecretKey != "" {
-		secKey = string(AESECBDecrypt([]byte(account.ApiSecretKey), []byte(conf.User.Password)))
-	}
-	if account.ApiPassphrase != "" {
-		passKey = string(AESECBDecrypt([]byte(account.ApiPassphrase), []byte(conf.User.Password)))
-	}
-
 	exc, isOk := List[account.ExchangeName]
 	if !isOk {
 		return errors.New("do not support exchange")
@@ -105,26 +96,26 @@ func verifyAccount(account Account) error {
 		if market_center.IsFutureExchange(name) {
 			var ex goex.FutureRestAPI
 
-			if passKey != "" {
+			if account.ApiPassphrase != "" {
 
 				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
-					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).
+					APIKey(account.ApiKey).APISecretkey(account.ApiSecretKey).ApiPassphrase(account.ApiPassphrase).
 					BuildFuture(name)
 			} else {
 				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
-					APIKey(account.ApiKey).APISecretkey(secKey).
+					APIKey(account.ApiKey).APISecretkey(account.ApiSecretKey).
 					BuildFuture(name)
 			}
 			_, err := ex.GetFutureUserinfo()
 			return err
 		} else {
 			var ex goex.API
-			if passKey != "" {
+			if account.ApiPassphrase != "" {
 				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
-					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).Build(name)
+					APIKey(account.ApiKey).APISecretkey(account.ApiSecretKey).ApiPassphrase(account.ApiPassphrase).Build(name)
 			} else {
 				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
-					APIKey(account.ApiKey).APISecretkey(secKey).Build(name)
+					APIKey(account.ApiKey).APISecretkey(account.ApiSecretKey).Build(name)
 			}
 			_, err := ex.GetAccount()
 			return err
