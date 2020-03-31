@@ -11,7 +11,7 @@ require (
 	github.com/goex-top/market_center v1.0.4-alpha
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/labstack/echo/v4 v4.1.15
+	github.com/labstack/echo/v4 v4.1.16
 	github.com/nntaoli-project/goex v1.1.0
 	github.com/piquette/finance-go v1.0.0
 	github.com/shopspring/decimal v0.0.0-20200226005030-a08b92da27ed // indirect
