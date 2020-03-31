@@ -30,7 +30,7 @@
 
 统计你的个人资产
 
-![image](资产管理.gif)
+![image](https://raw.githubusercontent.com/goex-top/cryptoassetsweb/master/assets.gif)
 
 ## 缘由
 FCoin 跑路时，提币需邮件回复账户里资金数量，有多少人能知道自己资金具体数目？难。
@@ -51,7 +51,7 @@ FCoin 跑路时，提币需邮件回复账户里资金数量，有多少人能�
 
 ### 添加API KEY
 在Web设置中添加平台的KEY
-![image](设置.png)
+![image](https://raw.githubusercontent.com/goex-top/cryptoassetsweb/master/settings.png)
 
 ## 配置
 创建一份`config.toml`配置文件，如`cp sample-config.toml config.toml` ，修改其内容

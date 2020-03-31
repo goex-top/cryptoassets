@@ -30,7 +30,7 @@
 
 Recording your crypto assets with multi accounts
 
-![image](资产管理.gif)
+![image](https://raw.githubusercontent.com/goex-top/cryptoassetsweb/master/assets.gif)
 
 ## Let's start
 Run this tool, it can record your assets automatic.
@@ -48,7 +48,7 @@ Run this tool, it can record your assets automatic.
 
 ### Add API KEY
 add API KEY in setting view
-![image](设置.png)
+![image](https://raw.githubusercontent.com/goex-top/cryptoassetsweb/master/settings.png)
 
 ## Config
 create a config file, `config.toml`, using `cp sample-config.toml config.toml` , then modify it with followed description
