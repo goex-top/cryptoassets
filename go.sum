@@ -21,6 +21,7 @@ github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5/go.mod h1:a
 github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239/go.mod h1:Gdwt2ce0yfBxPvZrHkprdPPTTS3N5rwmLE8T22KBXlw=
 github.com/go-openapi/errors v0.19.2 h1:a2kIyV3w+OS3S97zxUndRVD46+FhGOUBDFY7nmu4CsY=
 github.com/go-openapi/errors v0.19.2/go.mod h1:qX0BLWsyaKfvhluLejVpVNwNRdXZhEbTA4kxxpKBC94=
+github.com/go-openapi/errors v0.19.4/go.mod h1:qX0BLWsyaKfvhluLejVpVNwNRdXZhEbTA4kxxpKBC94=
 github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/goex-top/market_center v1.0.4-alpha h1:BbvNFG/Zyvy75xV4gkQQDybX/tR4n96Tuew1oXhJ7qk=
@@ -91,6 +92,8 @@ github.com/nntaoli-project/goex v1.1.0 h1:IoB5q8HvW9ZdGub4a8pV5Mc3bFWfGmQ2fQB2hU
 github.com/nntaoli-project/goex v1.1.0/go.mod h1:dhUT0OjkjEyZY8Zj4pu6BF3ZLNRdm5myacC3JxxJWHo=
 github.com/nntaoli-project/goex v1.1.1 h1:ziS6cBqOij1jUwcofkBTZvq1/mwi1/Pq9u8bS314XkI=
 github.com/nntaoli-project/goex v1.1.1/go.mod h1:ulGh9BCAfd+mJAiGD2OokRXUFMM9T2kjr6YSQvo6uiw=
+github.com/nntaoli-project/goex v1.2.0 h1:ca/3osJz2+SeqYD3dMA4/85MpvjFhR/S86h3xOV1Il8=
+github.com/nntaoli-project/goex v1.2.0/go.mod h1:sCb1e95fe/WBvGA8JVQc3r2XTFawUZro39mb9/qY3To=
 github.com/nubo/jwt v0.0.0-20150918093313-da5b79c3bbaf h1:mP7zQzhCrNQgSdCpxFxyZV/JMHbz4LJsyppAZMQVrI0=
 github.com/nubo/jwt v0.0.0-20150918093313-da5b79c3bbaf/go.mod h1:LuR7jHS+7SJ6EywD7zZiO6h0vwTBSevFk5wunVt3gf4=
 github.com/piquette/finance-go v1.0.0 h1:0nHbZCbhAsUMUt18oTgy5bHQfPRGhcNA0EbpxNRsZAA=
