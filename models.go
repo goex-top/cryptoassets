@@ -47,8 +47,8 @@ type CoinAsset struct {
 // configure
 type Config struct {
 	Freq  int    `toml:"freq"`
-	Proxy string `toml:proxy`
-	Debug bool   `toml:debug`
+	Proxy string `toml:"proxy"`
+	Debug bool   `toml:"debug"`
 	User  User   `toml:"user"`
 }
 

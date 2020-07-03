@@ -49,6 +49,7 @@ func addExchange(account Account) {
 	exchange := Exchange{id: account.ID, name: account.ExchangeName, nickname: account.NickName, accountId: account.ID}
 	for _, name := range exc {
 		if market_center.IsFutureExchange(name) {
+			name = market_center.SupportAdapter[name]
 			if passKey != "" {
 				exchange.future = append(exchange.future,
 					builder.NewAPIBuilder().HttpProxy(conf.Proxy).
@@ -61,6 +62,7 @@ func addExchange(account Account) {
 						BuildFuture(name))
 			}
 		} else {
+			name = market_center.SupportAdapter[name]
 			if passKey != "" {
 				exchange.spot = builder.NewAPIBuilder().HttpProxy(conf.Proxy).
 					APIKey(account.ApiKey).APISecretkey(secKey).ApiPassphrase(passKey).Build(name)
@@ -94,6 +96,7 @@ func verifyAccount(account Account) error {
 
 	for _, name := range exc {
 		if market_center.IsFutureExchange(name) {
+			name = market_center.SupportAdapter[name]
 			var ex goex.FutureRestAPI
 
 			if account.ApiPassphrase != "" {
@@ -109,6 +112,7 @@ func verifyAccount(account Account) error {
 			_, err := ex.GetFutureUserinfo()
 			return err
 		} else {
+			name = market_center.SupportAdapter[name]
 			var ex goex.API
 			if account.ApiPassphrase != "" {
 				ex = builder.NewAPIBuilder().HttpProxy(conf.Proxy).

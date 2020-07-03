@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/piquette/finance-go"
 	"log"
 	"os"
@@ -66,8 +65,8 @@ func main() {
 	StartFetchAccount(ctx, time.Duration(conf.Freq)*time.Second)
 	e := echo.New()
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	//e.Use(middleware.Logger())
+	//e.Use(middleware.Recover())
 	if !debug {
 		e.File("/", "web/index.html")
 		e.Static("static", "web/static")
