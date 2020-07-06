@@ -9,7 +9,7 @@ require (
 	github.com/beaquant/utils v0.0.0-20200214111051-cad84a41cb41
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/goex-top/market_center v1.0.6-alpha
-	github.com/jinzhu/gorm v1.9.12
+	github.com/jinzhu/gorm v1.9.14
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/nntaoli-project/goex v1.2.0
