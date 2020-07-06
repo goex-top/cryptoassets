@@ -2,7 +2,7 @@ module github.com/goex-top/cryptoassets
 
 go 1.14
 
-replace github.com/nntaoli-project/goex v1.1.0 => github.com/beaquant/goex v1.0.5-0.20200618005328-50657eae26c8
+replace github.com/nntaoli-project/goex v1.2.0 => github.com/beaquant/goex v1.0.5-0.20200618005328-50657eae26c8
 
 require (
 	github.com/BurntSushi/toml v0.3.1
