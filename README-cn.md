@@ -159,19 +159,3 @@ CREATE TABLE coin_assets (
 
 ## 前端源码
 如果想修改web源码，请查看仓库`https://github.com/goex-top/cryptoassetsweb.git`
-
-## 咖啡一杯
-如果对你有用，可为作者买一杯咖啡/一碗热干面
-
-BTC: 3Ga5Lh6jW3h51QvRraeFdH6AgpgkxgedL8
-
-ETH: 0x4ba3bffd3ac961de4a4030d9826f88becf745a89
-
-<p align="center">
-  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png">
-    <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png" width="300" alt="一杯咖啡">
-  </a>
-  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png">
-      <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png" width="300" alt="一碗热干面">
-    </a>
-</p>

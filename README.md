@@ -156,19 +156,3 @@ Exchange | Spot | Future(Contract) | Future(Swap) | LOGO
 
 ## Source code of frontend
 If you want to modify frontend, please check out source code [https://github.com/goex-top/cryptoassetsweb.git](https://github.com/goex-top/cryptoassetsweb.git)
-
-## Buy a coffee
-You can buy a coffee to author if it helpful.
-
-BTC: 3Ga5Lh6jW3h51QvRraeFdH6AgpgkxgedL8
-
-ETH: 0x4ba3bffd3ac961de4a4030d9826f88becf745a89
-
-<p align="center">
-  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png">
-    <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/alipay.png" width="300" alt="一杯咖啡">
-  </a>
-  <a href="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png">
-      <img src="https://raw.githubusercontent.com/goex-top/cryptoassets/master/wechat.png" width="300" alt="一碗热干面">
-    </a>
-</p>
